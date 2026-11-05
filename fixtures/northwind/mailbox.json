@@ -1,0 +1,1805 @@
+{
+ "_comment": "Fictional demo mailbox for Inbox Chief (Northwind Process Supply). Every person, company, domain, part number, price and quote number is invented; domains use the reserved .example TLD. Regenerate with scripts/build_demo_dataset.py; see fixtures/northwind/README.md.",
+ "me": {
+  "address": "pat@northwind-demo.example",
+  "name": "Pat Rivera"
+ },
+ "now": "2026-11-10T16:30:00Z",
+ "_demo": {
+  "window": [
+   "2026-10-26",
+   "2026-11-10"
+  ],
+  "lanes_file": "fixtures/northwind/lanes.yaml",
+  "scenarios": [
+   {
+    "id": "H1_cut_sheet_link",
+    "title": "Supplier sends the cut sheet a customer asked for",
+    "customer_thread": "c-lakeshore-kp450",
+    "customer_message": "nw020",
+    "supplier_thread": "c-kestrel-kp450",
+    "our_ask": "nw022",
+    "supplier_reply": "nw040",
+    "attachment_to_send": "KP-450-cut-sheet-rev-D.pdf",
+    "attachment_never_send": "Kestrel-Quote-KQ-77812.pdf",
+    "expect": [
+     "supplier_reply on nw040 (attachments listed)",
+     "inbox_chief_thread(nw040) -> possibly waiting on this: c-lakeshore-kp450 (KP-450 token, Lakeshore alias, timing)",
+     "draft_reply(message_id=nw020, attach_from_message_id=nw040, attachment_names=[KP-450-cut-sheet-rev-D.pdf]) -> reply-all to Dana + Lee",
+     "copying all attachments or quoting the price is blocked (S5)"
+    ]
+   },
+   {
+    "id": "H2_reply_on_self_started_thread",
+    "title": "Customer replies on a thread we started",
+    "thread": "c-cedar-cip",
+    "our_messages": [
+     "nw011",
+     "nw017"
+    ],
+    "replies": [
+     "nw044",
+     "nw046"
+    ],
+    "expect": [
+     "customer_reply on nw044 (if scanned before nw046 arrived)",
+     "customer_reply on nw046: new dedupe key, so a second alert (per-reply dedupe); one scan at demo time reports the thread once, newest message nw046",
+     "reply-all draft keeps Jordan on cc"
+    ]
+   },
+   {
+    "id": "H3_supplier_half_answer",
+    "title": "Supplier answers two of three technical questions",
+    "customer_thread": "c-harborbay-gaskets",
+    "customer_message": "nw023",
+    "supplier_thread": "c-gomalley-seals",
+    "our_ask": "nw029",
+    "supplier_reply": "nw042",
+    "unanswered": [
+     "FDA 21 CFR 177.2600 compliance letter (question 2)"
+    ],
+    "expect": [
+     "supplier_reply on nw042 flagged: question 2 not answered",
+     "links to c-harborbay-gaskets (\"Granite and O Malley\" fuzzy-matches Granite & O'Malley)",
+     "draft to Chris answers 1 and 3 without the $6.85 price; follow-up draft to Tess asks for the letter"
+    ]
+   },
+   {
+    "id": "H4_overdue_follow_up",
+    "title": "Follow-up that never got an answer",
+    "thread": "c-prairie-quote",
+    "tracked_message": "nw016",
+    "expect": [
+     "overdue: nw016 sent 2026-11-02, due after 3 business days, no reply by 2026-11-10T16:30:00Z",
+     "agent stages a short second follow-up for go/no-go"
+    ]
+   },
+   {
+    "id": "replies_owed",
+    "thread": "c-bellwether-visit",
+    "message": "nw031",
+    "expect": [
+     "replies_owed on nw031 (sales lane, customer wrote last on Nov 6)"
+    ]
+   },
+   {
+    "id": "tracked_reply_no_duplicate",
+    "thread": "c-lakeshore-startup",
+    "tracked_message": "nw019",
+    "reply": "nw043",
+    "expect": [
+     "tracker `replied` event for nw019",
+     "NOT also a customer_reply alert"
+    ]
+   },
+   {
+    "id": "parent_company_trap",
+    "thread": "c-bluefin-bv200",
+    "expect": [
+     "Bluefin reply mentions Harbor Flow Group (Kestrel's parent): no link to Lakeshore/Kestrel threads",
+     "links to c-copperline-valve (BV-200 / butterfly / timing)"
+    ]
+   }
+  ],
+  "tracker_seed": [
+   {
+    "message_id": "nw007",
+    "needs_reply": false,
+    "note": "original quote email (FYI)"
+   },
+   {
+    "message_id": "nw016",
+    "needs_reply": true,
+    "note": "H4 follow-up, expected overdue"
+   },
+   {
+    "message_id": "nw019",
+    "needs_reply": true,
+    "note": "answered by Lee on Nov 9 -> replied"
+   },
+   {
+    "message_id": "nw011",
+    "needs_reply": false,
+    "note": "proposal; replies arrive via customer_reply (H2)"
+   }
+  ]
+ },
+ "messages": [
+  {
+   "id": "nw001",
+   "parentFolder": "inbox",
+   "conversationId": "c-prairie-samples",
+   "subject": "Samples arrived",
+   "from": {
+    "emailAddress": {
+     "address": "sam.ito@prairiebotanicals.example",
+     "name": "Sam Ito"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Pat, The valve seat samples arrived this morning, thanks. Our engineer will test them on the extraction skid this week and I will come back to you with a quote request. Sam",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nThe valve seat samples arrived this morning, thanks. Our engineer will test them on the extraction skid this week and I will come back to you with a quote request.\nSam"
+   },
+   "internetMessageId": "<nw001.c-prairie-samples@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-26T15:02:00Z",
+   "receivedDateTime": "2026-10-26T15:02:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw002",
+   "parentFolder": "sentitems",
+   "conversationId": "c-prairie-samples",
+   "subject": "RE: Samples arrived",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "sam.ito@prairiebotanicals.example",
+      "name": "Sam Ito"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Great, glad they made it. Holler if the team needs anything else for the trial. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Great, glad they made it. Holler if the team needs anything else for the trial.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw002.c-prairie-samples@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-26T16:10:00Z",
+   "receivedDateTime": "2026-10-26T16:10:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw003",
+   "parentFolder": "inbox",
+   "conversationId": "c-bellwether-visit",
+   "subject": "Site visit for the filler line upgrade",
+   "from": {
+    "emailAddress": {
+     "address": "casey.lindqvist@bellwetherbottling.example",
+     "name": "Casey Lindqvist"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Pat, We are planning a filler line upgrade next spring and would like you to walk the line with our maintenance lead. Would a site visit in the next few weeks work? Casey Lindqvist Bellwether Bottling",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nWe are planning a filler line upgrade next spring and would like you to walk the line with our maintenance lead. Would a site visit in the next few weeks work?\nCasey Lindqvist\nBellwether Bottling"
+   },
+   "internetMessageId": "<nw003.c-bellwether-visit@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-27T14:31:00Z",
+   "receivedDateTime": "2026-10-27T14:31:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw004",
+   "parentFolder": "sentitems",
+   "conversationId": "c-bellwether-visit",
+   "subject": "RE: Site visit for the filler line upgrade",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "casey.lindqvist@bellwetherbottling.example",
+      "name": "Casey Lindqvist"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Casey, Absolutely. Send me two or three dates that work for your maintenance lead and I will lock one in. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Casey,\nAbsolutely. Send me two or three dates that work for your maintenance lead and I will lock one in.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw004.c-bellwether-visit@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-27T15:05:00Z",
+   "receivedDateTime": "2026-10-27T15:05:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw005",
+   "parentFolder": "inbox",
+   "conversationId": "c-kestrel-price-increase",
+   "subject": "Kestrel Pump Works 2027 price adjustment",
+   "from": {
+    "emailAddress": {
+     "address": "customer.care@kestrelpumps.example",
+     "name": "Kestrel Pump Works"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Valued distributor, Effective January 1, 2027, list prices on KP-series pumps increase 4.5%. Your distributor multiplier of 0.62 is unchanged. The updated net price sheet is attached. Kestrel Pump Works",
+   "body": {
+    "contentType": "Text",
+    "content": "Valued distributor,\nEffective January 1, 2027, list prices on KP-series pumps increase 4.5%. Your distributor multiplier of 0.62 is unchanged. The updated net price sheet is attached.\nKestrel Pump Works"
+   },
+   "internetMessageId": "<nw005.c-kestrel-price-increase@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-27T17:00:00Z",
+   "receivedDateTime": "2026-10-27T17:00:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Kestrel_NPS-2027.pdf",
+     "contentType": "application/pdf",
+     "size": 210000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IEtlc3RyZWwgbmV0IHByaWNlIHNoZWV0IDIwMjc="
+    }
+   ],
+   "hasAttachments": true,
+   "_label": "supplier pricing announcement (must never be forwarded to a customer)"
+  },
+  {
+   "id": "nw006",
+   "parentFolder": "inbox",
+   "conversationId": "c-mag-1",
+   "subject": "ProcessWorld Weekly: hygienic design trends for 2027",
+   "from": {
+    "emailAddress": {
+     "address": "news@processworld-mag.example",
+     "name": "ProcessWorld Weekly"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "This week: drainable valve bodies, the new 3-A sanitary standards revision, and a look at CIP water savings. Read online | Unsubscribe",
+   "body": {
+    "contentType": "Text",
+    "content": "This week: drainable valve bodies, the new 3-A sanitary standards revision, and a look at CIP water savings. Read online | Unsubscribe"
+   },
+   "internetMessageId": "<nw006.c-mag-1@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-28T11:00:00Z",
+   "receivedDateTime": "2026-10-28T11:00:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "newsletter (noise)"
+  },
+  {
+   "id": "nw007",
+   "parentFolder": "sentitems",
+   "conversationId": "c-prairie-quote",
+   "subject": "Quote NW-Q-2210: sanitary ball valves for the extraction skid",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "sam.ito@prairiebotanicals.example",
+      "name": "Sam Ito"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Sam, Attached is quote NW-Q-2210 for the six 1.5\" sanitary ball valves with the PTFE seats you trialled. Lead time is about three weeks. Happy to walk your engineer through it. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Sam,\nAttached is quote NW-Q-2210 for the six 1.5\" sanitary ball valves with the PTFE seats you trialled. Lead time is about three weeks. Happy to walk your engineer through it.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw007.c-prairie-quote@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-28T20:15:00Z",
+   "receivedDateTime": "2026-10-28T20:15:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Northwind-Quote-NW-Q-2210.pdf",
+     "contentType": "application/pdf",
+     "size": 95000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IE5vcnRod2luZCBxdW90ZSBOVy1RLTIyMTA="
+    }
+   ],
+   "hasAttachments": true
+  },
+  {
+   "id": "nw008",
+   "parentFolder": "sentitems",
+   "conversationId": "c-gomalley-order",
+   "subject": "PO 55120 — 2in EPDM tri-clamp gaskets",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "tess.okonkwo@granite-omalley.example",
+      "name": "Tess Okonkwo"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Tess, PO 55120 attached for 100 pcs of the 2in EPDM tri-clamp gaskets. Please confirm ship date. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Tess,\nPO 55120 attached for 100 pcs of the 2in EPDM tri-clamp gaskets. Please confirm ship date.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw008.c-gomalley-order@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-28T21:00:00Z",
+   "receivedDateTime": "2026-10-28T21:00:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Northwind-PO-55120.pdf",
+     "contentType": "application/pdf",
+     "size": 40000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IE5vcnRod2luZCBQTyA1NTEyMA=="
+    }
+   ],
+   "hasAttachments": true
+  },
+  {
+   "id": "nw010",
+   "parentFolder": "inbox",
+   "conversationId": "c-billing-oct",
+   "subject": "Your CloudHost receipt for October",
+   "from": {
+    "emailAddress": {
+     "address": "no-reply@cloudhost-billing.example",
+     "name": "CloudHost Billing"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Thanks for your payment. Receipt #CH-55821. Amount charged to card ending 0000.",
+   "body": {
+    "contentType": "Text",
+    "content": "Thanks for your payment. Receipt #CH-55821. Amount charged to card ending 0000."
+   },
+   "internetMessageId": "<nw010.c-billing-oct@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-29T06:12:00Z",
+   "receivedDateTime": "2026-10-29T06:12:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "receipt (noise)"
+  },
+  {
+   "id": "nw009",
+   "parentFolder": "inbox",
+   "conversationId": "c-gomalley-order",
+   "subject": "RE: PO 55120 — 2in EPDM tri-clamp gaskets",
+   "from": {
+    "emailAddress": {
+     "address": "tess.okonkwo@granite-omalley.example",
+     "name": "Tess Okonkwo"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, Confirmed, ships Friday via ground. Tracking to follow. Tess Okonkwo Granite & O'Malley Seals",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nConfirmed, ships Friday via ground. Tracking to follow.\nTess Okonkwo\nGranite & O'Malley Seals"
+   },
+   "internetMessageId": "<nw009.c-gomalley-order@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-29T14:40:00Z",
+   "receivedDateTime": "2026-10-29T14:40:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw011",
+   "parentFolder": "sentitems",
+   "conversationId": "c-cedar-cip",
+   "subject": "Proposal: CIP spray ball upgrade for brite tanks 1-4",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "riley.vance@cedarridgebrewing.example",
+      "name": "Riley Vance"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "jordan.blake@northwind-demo.example",
+      "name": "Jordan Blake"
+     }
+    }
+   ],
+   "bodyPreview": "Hi Riley, As promised after the walk-through, attached is proposal NW-P-1043 to replace the fixed spray balls on brite tanks 1-4 with rotary spray heads. Install is about a day per two tanks and the water savings should pay it back in under a year. Happy ",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Riley,\nAs promised after the walk-through, attached is proposal NW-P-1043 to replace the fixed spray balls on brite tanks 1-4 with rotary spray heads. Install is about a day per two tanks and the water savings should pay it back in under a year. Happy to adjust scope.\nThanks,\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw011.c-cedar-cip@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-30T15:40:00Z",
+   "receivedDateTime": "2026-10-30T15:40:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Northwind-Proposal-NW-P-1043.pdf",
+     "contentType": "application/pdf",
+     "size": 180000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IE5vcnRod2luZCBwcm9wb3NhbCBOVy1QLTEwNDM="
+    }
+   ],
+   "hasAttachments": true
+  },
+  {
+   "id": "nw012",
+   "parentFolder": "inbox",
+   "conversationId": "c-cedar-cip",
+   "subject": "Automatic reply: Proposal: CIP spray ball upgrade for brite tanks 1-4",
+   "from": {
+    "emailAddress": {
+     "address": "riley.vance@cedarridgebrewing.example",
+     "name": "Riley Vance"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "I am out of the office until Monday Nov 2 with limited email. For urgent brewing issues call the brewhouse line.",
+   "body": {
+    "contentType": "Text",
+    "content": "I am out of the office until Monday Nov 2 with limited email. For urgent brewing issues call the brewhouse line."
+   },
+   "internetMessageId": "<nw012.c-cedar-cip@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-30T15:41:00Z",
+   "receivedDateTime": "2026-10-30T15:41:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "auto-reply (noise)"
+  },
+  {
+   "id": "nw013",
+   "parentFolder": "inbox",
+   "conversationId": "c-harborbay-invoice-copy",
+   "subject": "Copy of invoice NW-INV-88102?",
+   "from": {
+    "emailAddress": {
+     "address": "chris.delgado@harborbayfoods.example",
+     "name": "Chris Delgado"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, our AP team cannot find invoice NW-INV-88102. Can you resend? Chris",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat, our AP team cannot find invoice NW-INV-88102. Can you resend?\nChris"
+   },
+   "internetMessageId": "<nw013.c-harborbay-invoice-copy@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-30T19:12:00Z",
+   "receivedDateTime": "2026-10-30T19:12:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw014",
+   "parentFolder": "sentitems",
+   "conversationId": "c-harborbay-invoice-copy",
+   "subject": "RE: Copy of invoice NW-INV-88102?",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "chris.delgado@harborbayfoods.example",
+      "name": "Chris Delgado"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "morgan.tate@northwind-demo.example",
+      "name": "Morgan Tate"
+     }
+    }
+   ],
+   "bodyPreview": "Chris, attached. Morgan on our side can help AP directly going forward. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Chris, attached. Morgan on our side can help AP directly going forward.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw014.c-harborbay-invoice-copy@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-30T19:30:00Z",
+   "receivedDateTime": "2026-10-30T19:30:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "NW-INV-88102.pdf",
+     "contentType": "application/pdf",
+     "size": 30000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IE5vcnRod2luZCBpbnZvaWNlIE5XLUlOVi04ODEwMg=="
+    }
+   ],
+   "hasAttachments": true
+  },
+  {
+   "id": "nw015",
+   "parentFolder": "inbox",
+   "conversationId": "c-social-1",
+   "subject": "You appeared in 9 searches this week",
+   "from": {
+    "emailAddress": {
+     "address": "notifications@socialnet.example",
+     "name": "SocialNet"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "See who is looking at your profile. Unsubscribe from these notifications.",
+   "body": {
+    "contentType": "Text",
+    "content": "See who is looking at your profile. Unsubscribe from these notifications."
+   },
+   "internetMessageId": "<nw015.c-social-1@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-10-31T13:00:00Z",
+   "receivedDateTime": "2026-10-31T13:00:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "social notification (noise)"
+  },
+  {
+   "id": "nw016",
+   "parentFolder": "sentitems",
+   "conversationId": "c-prairie-quote",
+   "subject": "RE: Quote NW-Q-2210: sanitary ball valves for the extraction skid",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "sam.ito@prairiebotanicals.example",
+      "name": "Sam Ito"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Sam, Following up on NW-Q-2210. Did your engineer have any questions on the PTFE seats? If the timing works I can hold the current lead time through the end of next week. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Sam,\nFollowing up on NW-Q-2210. Did your engineer have any questions on the PTFE seats? If the timing works I can hold the current lead time through the end of next week.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw016.c-prairie-quote@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-02T16:05:00Z",
+   "receivedDateTime": "2026-11-02T16:05:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H4: tracked follow-up that needs a reply; nothing comes back"
+  },
+  {
+   "id": "nw017",
+   "parentFolder": "sentitems",
+   "conversationId": "c-cedar-cip",
+   "subject": "RE: Proposal: CIP spray ball upgrade for brite tanks 1-4",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "riley.vance@cedarridgebrewing.example",
+      "name": "Riley Vance"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "jordan.blake@northwind-demo.example",
+      "name": "Jordan Blake"
+     }
+    }
+   ],
+   "bodyPreview": "Hi Riley, bumping this now that you are back. Any thoughts on the proposal? Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Riley, bumping this now that you are back. Any thoughts on the proposal?\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw017.c-cedar-cip@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-03T15:15:00Z",
+   "receivedDateTime": "2026-11-03T15:15:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw018",
+   "parentFolder": "inbox",
+   "conversationId": "c-mag-2",
+   "subject": "ProcessWorld Weekly: 5 CIP mistakes that waste water",
+   "from": {
+    "emailAddress": {
+     "address": "news@processworld-mag.example",
+     "name": "ProcessWorld Weekly"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "This week: CIP return-line sizing, spray coverage testing and more. Read online | Unsubscribe",
+   "body": {
+    "contentType": "Text",
+    "content": "This week: CIP return-line sizing, spray coverage testing and more. Read online | Unsubscribe"
+   },
+   "internetMessageId": "<nw018.c-mag-2@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-04T11:00:00Z",
+   "receivedDateTime": "2026-11-04T11:00:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "newsletter (noise)"
+  },
+  {
+   "id": "nw019",
+   "parentFolder": "sentitems",
+   "conversationId": "c-lakeshore-startup",
+   "subject": "Line 3 start-up date?",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "lee.marsh@lakeshorecreamery.example",
+      "name": "Lee Marsh"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Lee, What is the current start-up date for line 3? I want to make sure the pump and spares land a week ahead. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Lee,\nWhat is the current start-up date for line 3? I want to make sure the pump and spares land a week ahead.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw019.c-lakeshore-startup@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-04T17:20:00Z",
+   "receivedDateTime": "2026-11-04T17:20:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "tracked: a reply here is a `replied` tracker event, not a customer_reply"
+  },
+  {
+   "id": "nw020",
+   "parentFolder": "inbox",
+   "conversationId": "c-lakeshore-kp450",
+   "subject": "KP-450 transfer pump for line 3 — cut sheet?",
+   "from": {
+    "emailAddress": {
+     "address": "dana.okafor@lakeshorecreamery.example",
+     "name": "Dana Okafor"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "lee.marsh@lakeshorecreamery.example",
+      "name": "Lee Marsh"
+     }
+    }
+   ],
+   "bodyPreview": "Hi Pat, For the line 3 project, could you send the cut sheet for the Kestrel KP-450 transfer pump we discussed? Engineering wants to confirm the 3-A sanitary rating, the 5 HP TEFC motor and the curve at 60 gpm / 40 psi before we release the PO. Lee is cop",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nFor the line 3 project, could you send the cut sheet for the Kestrel KP-450 transfer pump we discussed? Engineering wants to confirm the 3-A sanitary rating, the 5 HP TEFC motor and the curve at 60 gpm / 40 psi before we release the PO. Lee is copied.\nThanks,\nDana Okafor\nLakeshore Creamery"
+   },
+   "internetMessageId": "<nw020.c-lakeshore-kp450@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-05T15:12:00Z",
+   "receivedDateTime": "2026-11-05T15:12:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H1: the customer asks for a cut sheet"
+  },
+  {
+   "id": "nw021",
+   "parentFolder": "sentitems",
+   "conversationId": "c-lakeshore-kp450",
+   "subject": "RE: KP-450 transfer pump for line 3 — cut sheet?",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "dana.okafor@lakeshorecreamery.example",
+      "name": "Dana Okafor"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "lee.marsh@lakeshorecreamery.example",
+      "name": "Lee Marsh"
+     }
+    }
+   ],
+   "bodyPreview": "Hi Dana, Will do. I am getting the current revision from Kestrel and will send it as soon as I have it. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Dana,\nWill do. I am getting the current revision from Kestrel and will send it as soon as I have it.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw021.c-lakeshore-kp450@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-05T16:38:00Z",
+   "receivedDateTime": "2026-11-05T16:38:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw022",
+   "parentFolder": "sentitems",
+   "conversationId": "c-kestrel-kp450",
+   "subject": "KP-450 cut sheet + net pricing",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "ravi.lund@kestrelpumps.example",
+      "name": "Ravi Lund"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Ravi, Can you send the current KP-450 cut sheet (3-A, 5 HP TEFC) and our net price for qty 2? It is for Lakeshore's line 3. Thanks, Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Ravi,\nCan you send the current KP-450 cut sheet (3-A, 5 HP TEFC) and our net price for qty 2? It is for Lakeshore's line 3.\nThanks,\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw022.c-kestrel-kp450@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-05T16:45:00Z",
+   "receivedDateTime": "2026-11-05T16:45:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H1: we ask the supplier"
+  },
+  {
+   "id": "nw023",
+   "parentFolder": "inbox",
+   "conversationId": "c-harborbay-gaskets",
+   "subject": "Gaskets for the CIP return line — 3 questions",
+   "from": {
+    "emailAddress": {
+     "address": "chris.delgado@harborbayfoods.example",
+     "name": "Chris Delgado"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, We are replacing the gaskets on the CIP return line. Before we order: 1) Is EPDM OK with 2% caustic at 170F, or do we need FKM? 2) Can you send the FDA 21 CFR 177.2600 compliance letter for the compound? 3) What is the lead time for 40 pcs, 2in? Than",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nWe are replacing the gaskets on the CIP return line. Before we order:\n1) Is EPDM OK with 2% caustic at 170F, or do we need FKM?\n2) Can you send the FDA 21 CFR 177.2600 compliance letter for the compound?\n3) What is the lead time for 40 pcs, 2in?\nThanks,\nChris Delgado\nHarbor Bay Foods"
+   },
+   "internetMessageId": "<nw023.c-harborbay-gaskets@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-05T18:02:00Z",
+   "receivedDateTime": "2026-11-05T18:02:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H3: the customer asks three technical questions"
+  },
+  {
+   "id": "nw024",
+   "parentFolder": "sentitems",
+   "conversationId": "c-harborbay-gaskets",
+   "subject": "RE: Gaskets for the CIP return line — 3 questions",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "chris.delgado@harborbayfoods.example",
+      "name": "Chris Delgado"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Chris, good questions. Checking with the manufacturer and will come back to you on all three. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Chris, good questions. Checking with the manufacturer and will come back to you on all three.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw024.c-harborbay-gaskets@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-05T18:30:00Z",
+   "receivedDateTime": "2026-11-05T18:30:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw025",
+   "parentFolder": "inbox",
+   "conversationId": "c-kestrel-kp450",
+   "subject": "RE: KP-450 cut sheet + net pricing",
+   "from": {
+    "emailAddress": {
+     "address": "ravi.lund@kestrelpumps.example",
+     "name": "Ravi Lund"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, Engineering is updating the cut sheet for the new seal option. Should have rev D to you early next week. Ravi",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nEngineering is updating the cut sheet for the new seal option. Should have rev D to you early next week.\nRavi"
+   },
+   "internetMessageId": "<nw025.c-kestrel-kp450@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T14:20:00Z",
+   "receivedDateTime": "2026-11-06T14:20:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H1: supplier holding reply (no attachment yet)"
+  },
+  {
+   "id": "nw026",
+   "parentFolder": "inbox",
+   "conversationId": "c-copperline-valve",
+   "subject": "3in butterfly valves for the still house",
+   "from": {
+    "emailAddress": {
+     "address": "quinn.harlow@copperlinedistilling.example",
+     "name": "Quinn Harlow"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Pat, We need four 3in sanitary butterfly valves with pull handles for the still house, same Bluefin BV-200 style as the ones you sold us for the mash tun. Price and lead time please? Quinn Harlow Copperline Distilling",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nWe need four 3in sanitary butterfly valves with pull handles for the still house, same Bluefin BV-200 style as the ones you sold us for the mash tun. Price and lead time please?\nQuinn Harlow\nCopperline Distilling"
+   },
+   "internetMessageId": "<nw026.c-copperline-valve@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T15:00:00Z",
+   "receivedDateTime": "2026-11-06T15:00:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw027",
+   "parentFolder": "sentitems",
+   "conversationId": "c-copperline-valve",
+   "subject": "RE: 3in butterfly valves for the still house",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "quinn.harlow@copperlinedistilling.example",
+      "name": "Quinn Harlow"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Quinn, on it. Checking stock with the manufacturer today. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Quinn, on it. Checking stock with the manufacturer today.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw027.c-copperline-valve@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T15:30:00Z",
+   "receivedDateTime": "2026-11-06T15:30:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw028",
+   "parentFolder": "sentitems",
+   "conversationId": "c-bluefin-bv200",
+   "subject": "BV-200 3in butterfly valves x4 — stock?",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "mara.quist@bluefinvalve.example",
+      "name": "Mara Quist"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Mara, Do you have four BV-200 3in butterfly valves with pull handles in stock? Need price and ship date. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Mara,\nDo you have four BV-200 3in butterfly valves with pull handles in stock? Need price and ship date.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw028.c-bluefin-bv200@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T15:35:00Z",
+   "receivedDateTime": "2026-11-06T15:35:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw029",
+   "parentFolder": "sentitems",
+   "conversationId": "c-gomalley-seals",
+   "subject": "EPDM vs FKM, FDA letter and lead time — 2in tri-clamp gaskets",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "tess.okonkwo@granite-omalley.example",
+      "name": "Tess Okonkwo"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Tess, Three questions on your 2in tri-clamp gaskets for a food customer's CIP return line: 1) EPDM vs FKM with 2% caustic at 170F? 2) Please send the FDA 21 CFR 177.2600 compliance letter for your EPDM compound. 3) Lead time for 40 pcs? Thanks, Pat Rivera",
+   "body": {
+    "contentType": "Text",
+    "content": "Tess,\nThree questions on your 2in tri-clamp gaskets for a food customer's CIP return line:\n1) EPDM vs FKM with 2% caustic at 170F?\n2) Please send the FDA 21 CFR 177.2600 compliance letter for your EPDM compound.\n3) Lead time for 40 pcs?\nThanks,\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw029.c-gomalley-seals@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T16:10:00Z",
+   "receivedDateTime": "2026-11-06T16:10:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "H3: we forward the three questions to the supplier"
+  },
+  {
+   "id": "nw030",
+   "parentFolder": "inbox",
+   "conversationId": "c-kestrel-statement",
+   "subject": "Statement of account — past due balance",
+   "from": {
+    "emailAddress": {
+     "address": "ar@kestrelpumps.example",
+     "name": "Kestrel Pump Works A/R"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hello, Attached is your October statement. Invoice K-30981 is 12 days past due. Please remit or let us know if there is a question. Kestrel Pump Works A/R",
+   "body": {
+    "contentType": "Text",
+    "content": "Hello,\nAttached is your October statement. Invoice K-30981 is 12 days past due. Please remit or let us know if there is a question.\nKestrel Pump Works A/R"
+   },
+   "internetMessageId": "<nw030.c-kestrel-statement@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T20:00:00Z",
+   "receivedDateTime": "2026-11-06T20:00:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Kestrel-Statement-Oct-2026.pdf",
+     "contentType": "application/pdf",
+     "size": 52000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IEtlc3RyZWwgc3RhdGVtZW50"
+    }
+   ],
+   "hasAttachments": true,
+   "_label": "accounting lane: supplier statement"
+  },
+  {
+   "id": "nw031",
+   "parentFolder": "inbox",
+   "conversationId": "c-bellwether-visit",
+   "subject": "RE: Site visit for the filler line upgrade",
+   "from": {
+    "emailAddress": {
+     "address": "casey.lindqvist@bellwetherbottling.example",
+     "name": "Casey Lindqvist"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Pat, Sorry for the slow reply. Would Nov 17 or Nov 18 work? Also, could you bring the catalog for the filler valve rebuild kits? Casey",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nSorry for the slow reply. Would Nov 17 or Nov 18 work? Also, could you bring the catalog for the filler valve rebuild kits?\nCasey"
+   },
+   "internetMessageId": "<nw031.c-bellwether-visit@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-06T21:15:00Z",
+   "receivedDateTime": "2026-11-06T21:15:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "replies_owed: customer wrote last, nobody answered"
+  },
+  {
+   "id": "nw032",
+   "parentFolder": "inbox",
+   "conversationId": "c-webinar",
+   "subject": "[Webinar] Hygienic design for dry processing",
+   "from": {
+    "emailAddress": {
+     "address": "events@saas-notify.example",
+     "name": "HygieneTech Events"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Join us Thursday at 1pm CT. Register now.",
+   "body": {
+    "contentType": "Text",
+    "content": "Join us Thursday at 1pm CT. Register now."
+   },
+   "internetMessageId": "<nw032.c-webinar@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-07T15:00:00Z",
+   "receivedDateTime": "2026-11-07T15:00:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "webinar (noise)"
+  },
+  {
+   "id": "nw033",
+   "parentFolder": "inbox",
+   "conversationId": "c-billing-nov",
+   "subject": "Your CloudHost subscription renewed",
+   "from": {
+    "emailAddress": {
+     "address": "no-reply@cloudhost-billing.example",
+     "name": "CloudHost Billing"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Your subscription renewed. Receipt #CH-56010.",
+   "body": {
+    "contentType": "Text",
+    "content": "Your subscription renewed. Receipt #CH-56010."
+   },
+   "internetMessageId": "<nw033.c-billing-nov@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-08T06:15:00Z",
+   "receivedDateTime": "2026-11-08T06:15:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "receipt (noise)"
+  },
+  {
+   "id": "nw034",
+   "parentFolder": "inbox",
+   "conversationId": "c-pat-home",
+   "subject": "Fwd: dentist reschedule",
+   "from": {
+    "emailAddress": {
+     "address": "pat.rivera.home@mail.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Forwarding to my work email so I see it Monday.",
+   "body": {
+    "contentType": "Text",
+    "content": "Forwarding to my work email so I see it Monday."
+   },
+   "internetMessageId": "<nw034.c-pat-home@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-08T19:44:00Z",
+   "receivedDateTime": "2026-11-08T19:44:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "owner's personal address (ignored)"
+  },
+  {
+   "id": "nw035",
+   "parentFolder": "inbox",
+   "conversationId": "c-cedar-shutdown",
+   "subject": "Cedar Ridge shutdown dates",
+   "from": {
+    "emailAddress": {
+     "address": "jordan.blake@northwind-demo.example",
+     "name": "Jordan Blake"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, Riley mentioned at the trade show that Cedar Ridge is down Nov 20-21 for maintenance. Might be a good install window if they bite on the spray ball proposal. Jordan",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat, Riley mentioned at the trade show that Cedar Ridge is down Nov 20-21 for maintenance. Might be a good install window if they bite on the spray ball proposal.\nJordan"
+   },
+   "internetMessageId": "<nw035.c-cedar-shutdown@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T14:10:00Z",
+   "receivedDateTime": "2026-11-09T14:10:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "internal mail (not a customer item)"
+  },
+  {
+   "id": "nw036",
+   "parentFolder": "sentitems",
+   "conversationId": "c-cedar-shutdown",
+   "subject": "RE: Cedar Ridge shutdown dates",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "jordan.blake@northwind-demo.example",
+      "name": "Jordan Blake"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Good to know, thanks. Let's keep Nov 20 open for the install crew.",
+   "body": {
+    "contentType": "Text",
+    "content": "Good to know, thanks. Let's keep Nov 20 open for the install crew."
+   },
+   "internetMessageId": "<nw036.c-cedar-shutdown@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T14:25:00Z",
+   "receivedDateTime": "2026-11-09T14:25:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw037",
+   "parentFolder": "inbox",
+   "conversationId": "c-copperline-valve",
+   "subject": "RE: 3in butterfly valves for the still house",
+   "from": {
+    "emailAddress": {
+     "address": "quinn.harlow@copperlinedistilling.example",
+     "name": "Quinn Harlow"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, while you are at it can you also price a pneumatic actuator option for two of the four? Quinn",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat, while you are at it can you also price a pneumatic actuator option for two of the four?\nQuinn"
+   },
+   "internetMessageId": "<nw037.c-copperline-valve@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T15:05:00Z",
+   "receivedDateTime": "2026-11-09T15:05:00Z",
+   "isRead": true,
+   "hasAttachments": false
+  },
+  {
+   "id": "nw038",
+   "parentFolder": "drafts",
+   "conversationId": "c-copperline-valve",
+   "subject": "RE: 3in butterfly valves for the still house",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "quinn.harlow@copperlinedistilling.example",
+      "name": "Quinn Harlow"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hi Quinn, Yes, I will include an actuator option for two of the valves in the quote. Waiting on the manufacturer's stock check. Pat Rivera Northwind Process Supply (555) 010-2200",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Quinn,\nYes, I will include an actuator option for two of the valves in the quote. Waiting on the manufacturer's stock check.\n\nPat Rivera\nNorthwind Process Supply\n(555) 010-2200"
+   },
+   "internetMessageId": "<nw038.c-copperline-valve@fixture.northwind-demo.example>",
+   "isDraft": true,
+   "lastModifiedDateTime": "2026-11-09T15:40:00Z",
+   "createdDateTime": "2026-11-09T15:40:00Z",
+   "hasAttachments": false,
+   "_label": "handled: a draft already exists in this thread, so it is not a new item"
+  },
+  {
+   "id": "nw039",
+   "parentFolder": "inbox",
+   "conversationId": "c-lakeshore-ap",
+   "subject": "Remittance advice — invoice NW-INV-88213",
+   "from": {
+    "emailAddress": {
+     "address": "ap@lakeshorecreamery.example",
+     "name": "Lakeshore Creamery AP"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Payment of invoice NW-INV-88213 was sent by ACH today. Remittance detail attached.",
+   "body": {
+    "contentType": "Text",
+    "content": "Payment of invoice NW-INV-88213 was sent by ACH today. Remittance detail attached."
+   },
+   "internetMessageId": "<nw039.c-lakeshore-ap@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T16:00:00Z",
+   "receivedDateTime": "2026-11-09T16:00:00Z",
+   "isRead": true,
+   "attachments": [
+    {
+     "name": "Remittance-NW-INV-88213.pdf",
+     "contentType": "application/pdf",
+     "size": 22000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IHJlbWl0dGFuY2UgYWR2aWNl"
+    }
+   ],
+   "hasAttachments": true,
+   "_label": "accounting lane: customer remittance"
+  },
+  {
+   "id": "nw040",
+   "parentFolder": "inbox",
+   "conversationId": "c-kestrel-kp450",
+   "subject": "RE: KP-450 cut sheet + net pricing",
+   "from": {
+    "emailAddress": {
+     "address": "ravi.lund@kestrelpumps.example",
+     "name": "Ravi Lund"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, Rev D cut sheet attached: 3-A sanitary, 5 HP TEFC, curve covers 60 gpm at 40 psi with margin. Your net price is $4,180.00 each for qty 2, quote KQ-77812, 3 weeks ARO. Ravi Lund Kestrel Pump Works",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nRev D cut sheet attached: 3-A sanitary, 5 HP TEFC, curve covers 60 gpm at 40 psi with margin.\nYour net price is $4,180.00 each for qty 2, quote KQ-77812, 3 weeks ARO.\nRavi Lund\nKestrel Pump Works"
+   },
+   "internetMessageId": "<nw040.c-kestrel-kp450@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T19:05:00Z",
+   "receivedDateTime": "2026-11-09T19:05:00Z",
+   "isRead": false,
+   "attachments": [
+    {
+     "name": "KP-450-cut-sheet-rev-D.pdf",
+     "contentType": "application/pdf",
+     "size": 120000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IEtlc3RyZWwgS1AtNDUwIGN1dCBzaGVldCByZXYgRA=="
+    },
+    {
+     "name": "Kestrel-Quote-KQ-77812.pdf",
+     "contentType": "application/pdf",
+     "size": 80000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IEtlc3RyZWwgcXVvdGUgS1EtNzc4MTI="
+    },
+    {
+     "name": "image001.png",
+     "contentType": "image/png",
+     "size": 4100,
+     "isInline": true,
+     "contentBytes": "RklYVFVSRTogc2lnbmF0dXJlIGxvZ28="
+    }
+   ],
+   "hasAttachments": true,
+   "_label": "H1: supplier sends the cut sheet (+ a priced quote that must not be forwarded)"
+  },
+  {
+   "id": "nw041",
+   "parentFolder": "inbox",
+   "conversationId": "c-bluefin-bv200",
+   "subject": "RE: BV-200 3in butterfly valves x4 — stock?",
+   "from": {
+    "emailAddress": {
+     "address": "mara.quist@bluefinvalve.example",
+     "name": "Mara Quist"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, Four BV-200 in stock, ships in 2 days. As part of Harbor Flow Group we are moving orders to the new group portal on Dec 1, so please place this one by email. Mara Quist Bluefin Valve Co",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nFour BV-200 in stock, ships in 2 days. As part of Harbor Flow Group we are moving orders to the new group portal on Dec 1, so please place this one by email.\nMara Quist\nBluefin Valve Co"
+   },
+   "internetMessageId": "<nw041.c-bluefin-bv200@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T20:10:00Z",
+   "receivedDateTime": "2026-11-09T20:10:00Z",
+   "isRead": false,
+   "hasAttachments": false,
+   "_label": "parent-company trap: mentions Harbor Flow Group (Kestrel's parent) — must not link to the Lakeshore/Kestrel threads; links to Copperline instead"
+  },
+  {
+   "id": "nw042",
+   "parentFolder": "inbox",
+   "conversationId": "c-gomalley-seals",
+   "subject": "RE: EPDM vs FKM, FDA letter and lead time — 2in tri-clamp gaskets",
+   "from": {
+    "emailAddress": {
+     "address": "tess.okonkwo@granite-omalley.example",
+     "name": "Tess Okonkwo"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, 1) EPDM is fine with 2% caustic up to 180F; FKM is not recommended in hot caustic. 3) 40 pcs ship in 2 weeks, $6.85 each. Chemical compatibility chart attached. Tess Okonkwo Granite and O Malley Seals",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\n1) EPDM is fine with 2% caustic up to 180F; FKM is not recommended in hot caustic.\n3) 40 pcs ship in 2 weeks, $6.85 each.\nChemical compatibility chart attached.\nTess Okonkwo\nGranite and O Malley Seals"
+   },
+   "internetMessageId": "<nw042.c-gomalley-seals@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T21:30:00Z",
+   "receivedDateTime": "2026-11-09T21:30:00Z",
+   "isRead": false,
+   "attachments": [
+    {
+     "name": "GO-EPDM-chemical-chart.pdf",
+     "contentType": "application/pdf",
+     "size": 64000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRSAoZmljdGlvbmFsLCBub3QgYSByZWFsIFBERik6IGNoZW1pY2FsIGNvbXBhdGliaWxpdHkgY2hhcnQ="
+    }
+   ],
+   "hasAttachments": true,
+   "_label": "H3: supplier half-answers — skips question 2 (FDA letter); body has pricing"
+  },
+  {
+   "id": "nw043",
+   "parentFolder": "inbox",
+   "conversationId": "c-lakeshore-startup",
+   "subject": "RE: Line 3 start-up date?",
+   "from": {
+    "emailAddress": {
+     "address": "lee.marsh@lakeshorecreamery.example",
+     "name": "Lee Marsh"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, start-up moved to Dec 1. Pump on site by Nov 23 would be ideal. Lee",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat, start-up moved to Dec 1. Pump on site by Nov 23 would be ideal.\nLee"
+   },
+   "internetMessageId": "<nw043.c-lakeshore-startup@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-09T22:10:00Z",
+   "receivedDateTime": "2026-11-09T22:10:00Z",
+   "isRead": false,
+   "hasAttachments": false,
+   "_label": "reply on a TRACKED thread: one `replied` event, never also a customer_reply (duplicate-alert bug)"
+  },
+  {
+   "id": "nw044",
+   "parentFolder": "inbox",
+   "conversationId": "c-cedar-cip",
+   "subject": "RE: Proposal: CIP spray ball upgrade for brite tanks 1-4",
+   "from": {
+    "emailAddress": {
+     "address": "riley.vance@cedarridgebrewing.example",
+     "name": "Riley Vance"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "jordan.blake@northwind-demo.example",
+      "name": "Jordan Blake"
+     }
+    }
+   ],
+   "bodyPreview": "Hi Pat, Sorry for the delay. We are approved for tanks 1-2 now and 3-4 after January. Can your crew install during our Nov 20-21 shutdown? PO to follow this week. Riley Vance Cedar Ridge Brewing",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nSorry for the delay. We are approved for tanks 1-2 now and 3-4 after January. Can your crew install during our Nov 20-21 shutdown? PO to follow this week.\nRiley Vance\nCedar Ridge Brewing"
+   },
+   "internetMessageId": "<nw044.c-cedar-cip@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-10T14:48:00Z",
+   "receivedDateTime": "2026-11-10T14:48:00Z",
+   "isRead": false,
+   "hasAttachments": false,
+   "_label": "H2: customer replies on a thread WE started (missed-reply bug) — customer_reply"
+  },
+  {
+   "id": "nw045",
+   "parentFolder": "inbox",
+   "conversationId": "c-ellis-rfq",
+   "subject": "RFQ: 24x 2in EPDM tri-clamp gaskets + 6 clamps",
+   "from": {
+    "emailAddress": {
+     "address": "robin.achterberg@ellisfermentation.example",
+     "name": "Robin Achterberg"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Hello, We are a new brewery in town. Please quote 24 pcs 2in EPDM tri-clamp gaskets and 6 heavy-duty 2in clamps, delivered. Need them by Nov 24. Robin Achterberg Ellis Fermentation Co.",
+   "body": {
+    "contentType": "Text",
+    "content": "Hello,\nWe are a new brewery in town. Please quote 24 pcs 2in EPDM tri-clamp gaskets and 6 heavy-duty 2in clamps, delivered. Need them by Nov 24.\nRobin Achterberg\nEllis Fermentation Co."
+   },
+   "internetMessageId": "<nw045.c-ellis-rfq@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-10T15:20:00Z",
+   "receivedDateTime": "2026-11-10T15:20:00Z",
+   "isRead": false,
+   "hasAttachments": false,
+   "_label": "new item, quotes lane (new customer)"
+  },
+  {
+   "id": "nw046",
+   "parentFolder": "inbox",
+   "conversationId": "c-cedar-cip",
+   "subject": "RE: Proposal: CIP spray ball upgrade for brite tanks 1-4",
+   "from": {
+    "emailAddress": {
+     "address": "riley.vance@cedarridgebrewing.example",
+     "name": "Riley Vance"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "jordan.blake@northwind-demo.example",
+      "name": "Jordan Blake"
+     }
+    }
+   ],
+   "bodyPreview": "One more thing: can you add two spare rotary heads to the order? Riley",
+   "body": {
+    "contentType": "Text",
+    "content": "One more thing: can you add two spare rotary heads to the order?\nRiley"
+   },
+   "internetMessageId": "<nw046.c-cedar-cip@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-10T15:55:00Z",
+   "receivedDateTime": "2026-11-10T15:55:00Z",
+   "isRead": false,
+   "hasAttachments": false,
+   "_label": "H2: second reply in the same thread — a second alert (per-reply dedupe)"
+  },
+  {
+   "id": "nw047",
+   "parentFolder": "inbox",
+   "conversationId": "c-credit-app",
+   "subject": "Ellis Fermentation — credit application",
+   "from": {
+    "emailAddress": {
+     "address": "morgan.tate@northwind-demo.example",
+     "name": "Morgan Tate"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [],
+   "bodyPreview": "Pat, if Ellis wants terms I can send our credit application today. Let me know. Morgan",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat, if Ellis wants terms I can send our credit application today. Let me know.\nMorgan"
+   },
+   "internetMessageId": "<nw047.c-credit-app@fixture.northwind-demo.example>",
+   "isDraft": false,
+   "sentDateTime": "2026-11-10T16:05:00Z",
+   "receivedDateTime": "2026-11-10T16:05:00Z",
+   "isRead": true,
+   "hasAttachments": false,
+   "_label": "internal mail (not a customer item)"
+  }
+ ]
+}

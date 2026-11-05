@@ -1,0 +1,108 @@
+# Lanes file for the Northwind demo mailbox (fixtures/northwind/mailbox.json).
+# Fictional company; every name and domain is made up (.example is a reserved TLD).
+# Use with: plugins.entries.inbox-chief.settings = {mailbox: fixture,
+#   fixture_path: <plugin>/fixtures/northwind/mailbox.json, lanes_file: <plugin>/fixtures/northwind/lanes.yaml}
+version: 1
+
+company:
+  name: Northwind Process Supply
+  internal_domains: [northwind-demo.example]
+  my_addresses:
+    - pat@northwind-demo.example
+    - pat.rivera.home@mail.example
+
+hours:
+  timezone: America/Chicago
+  days: [mon, tue, wed, thu, fri]
+  start: "06:00"
+  end: "18:00"
+
+noise:
+  replace: false
+  senders:
+    - '@cloudhost-billing\.example$'
+    - '@saas-notify\.example$'
+    - '@processworld-mag\.example$'
+    - '^customer\.care@'
+  subjects:
+    - '^\[webinar\]'
+
+# Kestrel and Bluefin share a parent (Harbor Flow Group). The parent name is never a link signal:
+# Bluefin's mail mentions "Harbor Flow Group" and must NOT be linked to the Kestrel/Lakeshore threads.
+suppliers:
+  - name: Kestrel Pump Works
+    domains: [kestrelpumps.example]
+    aliases: [Kestrel, Kestrel Pumps]
+    parent: Harbor Flow Group
+  - name: Bluefin Valve Co
+    domains: [bluefinvalve.example]
+    aliases: [Bluefin, Blue Fin Valve]
+    parent: Harbor Flow Group
+  - name: Granite & O'Malley Seals
+    domains: [granite-omalley.example]
+    aliases: [Granite and O Malley, G&O Seals, Granite O'Malley]
+    parent: null
+
+customers:
+  - name: Lakeshore Creamery
+    domains: [lakeshorecreamery.example]
+    aliases: [Lakeshore, Dana Okafor, Lee Marsh]
+  - name: Prairie Botanicals
+    domains: [prairiebotanicals.example]
+    aliases: [Prairie Bot, Sam Ito]
+  - name: Cedar Ridge Brewing
+    domains: [cedarridgebrewing.example]
+    aliases: [Cedar Ridge, Riley Vance]
+  - name: Harbor Bay Foods
+    domains: [harborbayfoods.example]
+    aliases: [Harbor Bay, Chris Delgado]
+  - name: Copperline Distilling
+    domains: [copperlinedistilling.example]
+    aliases: [Copperline, Quinn Harlow]
+  - name: Bellwether Bottling
+    domains: [bellwetherbottling.example]
+    aliases: [Bellwether, Casey Lindqvist]
+
+lanes:
+  - id: quotes
+    label: Quotes & parts requests
+    owner: self
+    priority: 10
+    detect: [new, customer_reply, supplier_reply]
+    match:
+      text:
+        - '\b(quote|quotation|rfq|pricing|price|lead time|availability|cut sheet|stock)\b'
+        - '\b(part|seal|gasket|o-?ring|kit|impeller|diaphragm|valve|pump|clamp)s?\b.*\b(need|request|order)\b'
+      exclude_text:
+        - '\b(statement|past due|remittance)\b'
+
+  - id: accounting
+    label: Accounting
+    owner: self
+    priority: 20
+    detect: [new, customer_reply]
+    match:
+      text:
+        - '\b(invoice|statement|remittance|payment|past due|balance due|credit application|w-?9|ach|refund|credit memo)\b'
+
+  - id: sales
+    label: New business
+    owner: self
+    priority: 30
+    detect: [new, customer_reply, replies_owed]
+    match:
+      text:
+        - '\b(project|proposal|spec|looking for|interested in|recommend|upgrade|samples?|site visit|new line|expansion)\b'
+    replies_owed:
+      after_business_days: 1
+      max_days: 10
+
+followups:
+  due_business_days: 3
+
+safety:
+  pricing_patterns:
+    - '\bmultiplier\s*(of\s*)?[:=]?\s*0?\.\d+'
+  pricing_attachment_names:
+    - '(?<![a-z])NPS[-_ ]?\d+'
+  allow_pricing_to: []
