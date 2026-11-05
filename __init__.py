@@ -113,7 +113,7 @@ def register(ctx):
     holder = EngineHolder(lambda key, default=None: ctx.get_config(key, default=default), _LazyState(ctx))
     cron = _cron(ctx)
     tools = Tools(holder, profile=getattr(ctx, "profile_name", "default"), cron_execution=cron)
-    hooks = Hooks(holder, cron_execution=cron)
+    hooks = Hooks(holder, cron_execution=cron, profile=getattr(ctx, "profile_name", "default"))
 
     handlers = {
         "inbox_chief_status": tools.status,

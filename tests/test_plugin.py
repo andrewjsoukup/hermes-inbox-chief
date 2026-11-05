@@ -147,9 +147,25 @@ def test_cli_check_config(capsys):
 TEXT_EXT = {".py", ".yaml", ".yml", ".md", ".json", ".toml", ".js", ".txt", ".cfg", ".ini"}
 
 
+_SKIP_PARTS = {".git", ".pytest_cache", "__pycache__", ".venv", "private"}
+
+
 def _repo_files():
+    """Files that would ship: tracked + untracked-but-not-ignored (git), so gitignored scratch such as
+    private/ sandboxes and .venv never count. Falls back to a filtered walk without git."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+                             capture_output=True, timeout=30, check=True).stdout.decode("utf-8")
+        for rel in filter(None, out.split("\0")):
+            p = ROOT / rel
+            if p.is_file() and not any(part in _SKIP_PARTS for part in p.relative_to(ROOT).parts):
+                yield p
+        return
+    except Exception:
+        pass
     for p in ROOT.rglob("*"):
-        if p.is_file() and not any(part in {".git", ".pytest_cache", "__pycache__", ".venv"} for part in p.parts):
+        if p.is_file() and not any(part in _SKIP_PARTS for part in p.relative_to(ROOT).parts):
             yield p
 
 

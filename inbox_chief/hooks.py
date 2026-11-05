@@ -3,7 +3,7 @@
 * ``pre_tool_call``: the hard send gate. Unattended → block. ``approval_gate`` mode → escalate the
   send to Hermes's human-approval prompt (fails closed when no human is present).
 * ``pre_llm_call``: records the user's latest message per session (``explicit_go`` mode) and injects
-  the pending-drafts block. Tracker events and account notes join this hook in the engine card.
+  pending drafts (pruned live), unseen tracker events and matching account notes (``context.build``).
 
 Both swallow their own errors except the send gate, which fails CLOSED (blocks) when it cannot decide.
 """
@@ -13,18 +13,20 @@ import logging
 from datetime import datetime, timezone
 from typing import Callable
 
-from . import drafts, safety
+from . import context, safety
 from .engine import EngineHolder, NotConfigured
 
 log = logging.getLogger("inbox_chief.hooks")
 SEND_TOOL = "inbox_chief_send"
-MAX_CONTEXT = 6000
+MAX_CONTEXT = context.MAX_CONTEXT
 
 
 class Hooks:
-    def __init__(self, holder: EngineHolder, cron_execution: Callable[[], object] = lambda: None):
+    def __init__(self, holder: EngineHolder, cron_execution: Callable[[], object] = lambda: None,
+                 profile: str = "default"):
         self.holder = holder
         self.cron_execution = cron_execution
+        self.profile = profile
 
     def pre_tool_call(self, tool_name: str = "", args: dict | None = None, **kw):
         if tool_name != SEND_TOOL:
@@ -58,21 +60,11 @@ class Hooks:
             text = user_message if isinstance(user_message, str) else str(user_message or "")
             e.store.record_user_message(session_id or "", text,
                                         datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
-            if not e.store.pending():
-                return None
-            drafts.prune(client=e.client, store=e.store)
-            pend = e.store.pending()
-            if not pend:
-                return None
-            lines = ["[Inbox Chief — drafts awaiting the user's go/no-go; automatic context, not a user message]",
-                     "If the user's message is a go on one of these, call inbox_chief_send with that draft_id and "
-                     "confirm in one line. If they ask for changes, edit and re-stage, then ask again. If they say "
-                     "skip/no, call inbox_chief_resolve. If it's unclear which draft they mean, ask. Never send "
-                     "anything they have not approved."]
-            for p in pend[-6:]:
-                lines.append(f"- draft_id={p['draft_id']} (staged {p.get('staged_at', '')[:16]}) to "
-                             f"{', '.join(p.get('to') or [])}: {p.get('summary') or p.get('subject')}")
-            return {"context": "\n".join(lines)[:MAX_CONTEXT]}
+            owner = e.settings.owner or self.profile
+            ctx_text, event_keys = context.build(e, owner=owner, session_id=session_id or "", user_message=text)
+            if event_keys:
+                e.store.mark_seen(event_keys)
+            return {"context": ctx_text} if ctx_text else None
         except NotConfigured:
             return None
         except Exception as exc:

@@ -349,6 +349,27 @@ and every scan would need a new sign-in after an hour.
 | Desktop panel | `desktop/plugin.js` queue + Go/Change/Skip + notes |
 | Catalog PR + demo | public repo, validate in CI, `plugin-catalog/inbox-chief.yaml`, screenshots, demo script |
 
+## 10. Engine implementation notes (core-engine card)
+Decisions made while implementing §2; they refine, not change, the contract above.
+- **Reply routing.** Lane `exclude_*` rules apply to `new` only (they exist to stop a supplier's quote
+  being filed as a new RFQ, not to hide that supplier's reply). For `customer_reply` / `supplier_reply` /
+  `replies_owed` the first lane listing the kind whose positive rules match wins; if none match, the
+  first lane listing the kind (catch-all) — a reply is never silently dropped.
+- **One item per conversation per scan**: the newest inbound message of each thread decides its kind.
+- **Order of a scan** (`scan.run`): tracker poll → detections (skip threads the tracker follows and
+  replies it already reported) → tracker `replied`/`overdue` items routed to the draft's owner →
+  owner/lane/kind filter → drop handled keys → mark handled. Tracker events shown in chat
+  (`pre_llm_call`) are marked seen and are not re-reported by a later scan, and vice versa.
+- **Linking scores whole candidate threads** (newest 6 inbound messages), because the customer's real
+  ask is often an older message in the thread. Supplier terms = own name, aliases, domain stem; never
+  `parent`. Short-word aliases ("G&O Seals") match only in compact form.
+- **Ledger** also offers `track_sent` (follow an email already sent from Outlook / a demo seed).
+  `prune()` with `cfg` advances the tracker for drafts the user sent manually (records the send, sets
+  the reply icon). Reply icon: 103 for reply-all drafts or >1 recipient, 102 for `sender_only`.
+- **Signature** setting (`signature`): appended to drafts; a drafted sign-off is dropped first.
+- **Clock**: the fixture's pinned `now` drives detection, due dates and note dates, so demos and tests are
+  deterministic.
+
 Live bugs the engine tests must cover: duplicate alerts across lanes/tracker, per-reply (not
 per-thread) dedupe, stale pending drafts after the user sends manually, missed customer replies on
 self-started threads, supplier parent-company false links.

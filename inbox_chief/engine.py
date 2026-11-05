@@ -47,6 +47,7 @@ def settings_from(get: Callable[[str, Any], Any]) -> tuple[Settings, dict]:
         go_phrases=tuple(str(x) for x in go) if isinstance(go, list) else (),
         scan_lookback_days=int(get("scan_lookback_days", 2) or 2),
         owner=str(get("owner", "") or ""),
+        signature=str(get("signature", "") or ""),
     )
     return s, raw
 
@@ -84,7 +85,7 @@ class EngineHolder:
 
     def _settings_key(self) -> tuple:
         keys = ("lanes_file", "notes_dir", "mailbox", "fixture_path", "send_confirmation", "go_phrases",
-                "scan_lookback_days", "owner")
+                "scan_lookback_days", "owner", "signature")
         return tuple(repr(self._get(k, None)) for k in keys)
 
     def get(self) -> Engine:

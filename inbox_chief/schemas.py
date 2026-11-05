@@ -43,7 +43,9 @@ DRAFT_REPLY = {
         "sender_only": {"type": "boolean", "description": "Reply to the sender only. Default false = reply-all."},
         "attach_from_message_id": {"type": "string", "description": "Copy attachments from this message."},
         "attachment_names": {"type": "array", "items": {"type": "string"}, "description": "Only these files."},
-        "summary": {"type": "string", "description": "One line for the user's go/no-go list."}},
+        "summary": {"type": "string", "description": "One line for the user's go/no-go list."},
+        "reply_needed": {"type": "boolean", "description": "Track for a reply/overdue follow-up (default true); "
+                                                           "false for FYIs."}},
         "required": ["message_id", "body"]},
 }
 
@@ -57,7 +59,8 @@ DRAFT_NEW = {
         "body": {"type": "string"},
         "attach_from_message_id": {"type": "string"},
         "attachment_names": {"type": "array", "items": {"type": "string"}},
-        "summary": {"type": "string"}},
+        "summary": {"type": "string"},
+        "reply_needed": {"type": "boolean", "description": "Track for a reply (default true); false for FYIs."}},
         "required": ["to", "subject", "body"]},
 }
 

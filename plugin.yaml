@@ -90,3 +90,8 @@ config_schema:
     default: ""
     label: Lane owner for this profile
     description: Which lane owner this profile acts as. Empty = the profile name.
+  signature:
+    type: str
+    default: ""
+    label: Signature
+    description: Plain-text signature appended to drafts (a drafted sign-off like "Thanks," is dropped to avoid doubling). Empty = none.

@@ -68,6 +68,7 @@ lanes:
     match:
       text:
         - '\b(quote|quotation|rfq|pricing|price|lead time|availability)\b'
+        - '\b(cut ?sheet|data ?sheet|spec sheet|drawing|manual)s?\b'
         - '\b(part|seal|gasket|o-?ring|kit|impeller|diaphragm)s?\b.*\b(need|request|order)\b'
       exclude_from:
         - '@kestrelpumps\.example$'    # a supplier sending US a quote is a supplier_reply, not a new RFQ
