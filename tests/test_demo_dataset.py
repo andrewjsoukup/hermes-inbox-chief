@@ -41,9 +41,11 @@ def _msg(mid):
 # ── dataset integrity ────────────────────────────────────────────────────────────────────────────
 
 def test_fixture_is_reproducible_from_generator(tmp_path):
-    before = (NW / "mailbox.json").read_bytes()
+    def norm():  # git autocrlf may rewrite line endings on checkout; compare content only
+        return (NW / "mailbox.json").read_bytes().replace(b"\r\n", b"\n")
+    before = norm()
     subprocess.run([sys.executable, str(ROOT / "scripts" / "build_demo_dataset.py")], check=True, capture_output=True)
-    assert (NW / "mailbox.json").read_bytes() == before, "fixture is stale: rerun scripts/build_demo_dataset.py"
+    assert norm() == before, "fixture is stale: rerun scripts/build_demo_dataset.py"
 
 
 def test_spans_two_weeks_and_nothing_after_now():
@@ -233,7 +235,7 @@ def test_loader_loads_everything_and_threads_match():
 
 
 @pytest.mark.parametrize("kw,needle", [
-    ({"me": "andy@realcompany.example"}, "not demo@tenant.example"),
+    ({"me": "owner@realcompany.example"}, "not demo@tenant.example"),
     ({"inbox_count": 400}, "real mailbox"),
     ({"existing": True}, "--allow-reload"),
 ])
