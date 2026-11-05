@@ -1,0 +1,38 @@
+name: inbox-chief
+repo: https://github.com/<GITHUB_USER>/hermes-inbox-chief
+sha: <40-hex commit sha of the pushed main branch>
+subdir: ""
+title: Inbox Chief
+description: 'Outlook (Microsoft 365) inbox chief of staff: routes each email to one owner lane, catches customer replies on threads you started, supplier replies, replies owed and overdue follow-ups, links a supplier''s answer to the customer thread waiting on it, stages reply-all drafts and sends only after your explicit go (never from cron). Desktop pane with Go / Change / Skip. Microsoft Graph via a Hermes-held oauth: grant on your own Entra app.'
+maintainer: <GITHUB_USER>
+tier: community
+category: tools
+requires_hermes: ">=0.22.3"
+docs_url: https://github.com/<GITHUB_USER>/hermes-inbox-chief#readme
+version: "0.1.0"
+screenshots:
+  - https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-queue.png
+  - https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-confirm.png
+  - https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-preview.png
+  - https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-notes.png
+readme: true
+platforms: []
+known_issues:
+  - Needs a Microsoft 365 work or school mailbox and your own Entra ID app registration (README → Microsoft sign-in); personal outlook.com accounts are not supported.
+capabilities:
+  provides_tools:
+    - inbox_chief_status
+    - inbox_chief_scan
+    - inbox_chief_thread
+    - inbox_chief_draft_reply
+    - inbox_chief_draft_new
+    - inbox_chief_pending
+    - inbox_chief_send
+    - inbox_chief_resolve
+    - inbox_chief_notes
+  provides_hooks:
+    - pre_llm_call
+    - pre_tool_call
+  provides_middleware: []
+  requires_env:
+    - INBOX_CHIEF_MS_CLIENT_ID

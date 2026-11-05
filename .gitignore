@@ -7,3 +7,4 @@ __pycache__/
 *.private.yaml
 private/
 .env
+uv.lock

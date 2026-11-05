@@ -71,7 +71,7 @@ live profiles never see this grant. The plugin is already installed there.
 2. Run the sign-in **yourself in a terminal**. Hermes refuses to start a sign-in from an agent
    session. PowerShell:
    ```powershell
-   $env:HERMES_HOME = "C:\Users\AndySoukup\Projects\hermes-plugins\inbox-chief\private\hermes-home"
+   $env:HERMES_HOME = "<path-to-this-repo>\private\hermes-home"
    hermes auth add inbox-chief:microsoft
    hermes auth status inbox-chief:microsoft
    ```
@@ -83,7 +83,7 @@ live profiles never see this grant. The plugin is already installed there.
 
 ## Load the dataset (agent or you)
 ```bash
-HH=~/Projects/hermes-plugins/inbox-chief/private/hermes-home
+HH=<path-to-this-repo>/private/hermes-home
 PY=$(ls $HH/installs/*/environments/*/venv/Scripts/python.exe | head -1)
 export HERMES_HOME=$HH
 # dry run (no network), then the real load:
