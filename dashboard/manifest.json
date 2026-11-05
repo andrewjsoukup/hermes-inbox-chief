@@ -1,0 +1,10 @@
+{
+  "name": "inbox-chief",
+  "label": "Inbox Chief",
+  "description": "Lane queues, drafts awaiting your go, and account notes. The full panel lives in Hermes Desktop.",
+  "icon": "Mail",
+  "version": "0.1.0",
+  "tab": { "path": "/inbox-chief", "position": "end", "hidden": true },
+  "entry": "dist/index.js",
+  "api": "plugin_api.py"
+}
