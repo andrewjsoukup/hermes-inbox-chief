@@ -12,13 +12,13 @@ import logging
 from pathlib import Path
 
 try:  # Hermes loads this directory as a namespaced package
-    from .inbox_chief import schemas
+    from .inbox_chief import panel, schemas
     from .inbox_chief.config import ConfigError, load as load_lanes
     from .inbox_chief.engine import EngineHolder
     from .inbox_chief.hooks import Hooks
     from .inbox_chief.tools import Tools
 except ImportError:  # imported as a top-level module (pytest collecting the repo root)
-    from inbox_chief import schemas  # type: ignore[no-redef]
+    from inbox_chief import panel, schemas  # type: ignore[no-redef]
     from inbox_chief.config import ConfigError, load as load_lanes  # type: ignore[no-redef]
     from inbox_chief.engine import EngineHolder  # type: ignore[no-redef]
     from inbox_chief.hooks import Hooks  # type: ignore[no-redef]
@@ -114,6 +114,7 @@ def register(ctx):
     cron = _cron(ctx)
     tools = Tools(holder, profile=getattr(ctx, "profile_name", "default"), cron_execution=cron)
     hooks = Hooks(holder, cron_execution=cron, profile=getattr(ctx, "profile_name", "default"))
+    panel.publish(tools)  # Desktop panel backend (dashboard/plugin_api.py) reuses these when in-process
 
     handlers = {
         "inbox_chief_status": tools.status,
