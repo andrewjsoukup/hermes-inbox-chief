@@ -182,6 +182,32 @@ def build_payload(m: dict, *, index: bytes, shift: timedelta) -> tuple[str, dict
     return folder, body
 
 
+def as_mailbox(data: dict, address: str) -> dict:
+    """Copy of *data* with the fixture owner's address replaced by the real test mailbox address.
+
+    The engine recognises "my" messages (sent items, replies owed) by comparing with the signed-in
+    address, so the persona's fictional address must become the mailbox's own. The display name stays.
+    """
+    old = ((data.get("me") or {}).get("address") or "").lower()
+    if not old or not address or old == address.lower():
+        return data
+    out = json.loads(json.dumps(data))
+
+    def fix(rec: Any) -> None:
+        ea = rec.get("emailAddress") if isinstance(rec, dict) else None
+        if ea and (ea.get("address") or "").lower() == old:
+            ea["address"] = address
+
+    for m in out["messages"]:
+        fix(m.get("from"))
+        fix(m.get("sender"))
+        for key in ("toRecipients", "ccRecipients", "bccRecipients", "replyTo"):
+            for rec in m.get(key) or []:
+                fix(rec)
+    out["me"]["address"] = address
+    return out
+
+
 def plan(data: dict, shift_days: int) -> list[tuple[dict, str, dict]]:
     """[(fixture message, folder, payload)] oldest first."""
     msgs = sorted(data["messages"], key=message_time)
@@ -238,6 +264,7 @@ def load(data: dict, request: Callable, *, expect_mailbox: str, shift_days: int,
     if existing.get("value") and not allow_reload:
         raise LoadRefused(f"{address} already contains '{CATEGORY}' messages; pass --allow-reload to add a second copy")
 
+    data = as_mailbox(data, address)
     rows = plan(data, shift_days)
     ids: dict[str, str] = {}
     for m, folder, payload in rows:
@@ -289,7 +316,7 @@ def main(argv: list[str] | None = None) -> int:
     if demo_now > today + timedelta(minutes=5):
         print("WARNING: the newest messages would be in the future right now; load after "
               f"{fmt_ts(demo_now)} or pass --shift-days {shift - 1}.")
-    rows = plan(data, shift)
+    rows = plan(as_mailbox(data, a.expect_mailbox), shift)
     if not a.apply:
         for m, folder, payload in rows:
             stamp = next((p["value"] for p in payload["singleValueExtendedProperties"] if p["id"] == PROP_SUBMIT),

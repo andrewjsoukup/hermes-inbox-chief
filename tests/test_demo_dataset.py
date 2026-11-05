@@ -256,6 +256,22 @@ def test_loader_guard_blocks_send_move_delete(method, path):
         call(method, L.GRAPH_BASE + path)
 
 
+def test_loader_rewrites_persona_address_to_signed_in_mailbox():
+    L = _loader()
+    g = FakeGraph()
+    posted = []
+
+    def spy(method, url, *, json=None, headers=None):
+        if method == "POST":
+            posted.append(json)
+        return g(method, url, json=json, headers=headers)
+
+    L.load(DATA, spy, expect_mailbox="demo@tenant.example", shift_days=0, log=lambda *_: None)
+    blob = json.dumps(posted)
+    assert DATA["me"]["address"] not in blob and "demo@tenant.example" in blob
+    assert DATA["me"]["address"] in json.dumps(DATA)  # input not mutated
+
+
 def test_loader_dry_run_makes_no_requests(capsys, monkeypatch):
     L = _loader()
     monkeypatch.setattr(L, "hermes_request", lambda: pytest.fail("dry run must not touch Hermes/Graph"))
