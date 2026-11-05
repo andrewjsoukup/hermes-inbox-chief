@@ -1,0 +1,108 @@
+# Inbox Chief lanes file — EXAMPLE for a fictional company.
+# Copy this file somewhere PRIVATE (outside the plugin folder), edit it for your company, and point
+# plugins.entries.inbox-chief.settings.lanes_file at it. Validate with:
+#   hermes inbox-chief check-config /path/to/your-lanes.yaml
+# All names and domains below are made up (.example is a reserved TLD).
+version: 1
+
+company:
+  name: Northwind Process Supply
+  internal_domains: [northwind-demo.example]   # anyone @ these domains is "us"
+  my_addresses:                                # the mailbox owner (and personal addresses to ignore)
+    - pat@northwind-demo.example
+    - pat.rivera.home@mail.example
+
+# Business hours: scheduled scans only run inside this window. Manual scans always run.
+hours:
+  timezone: America/Chicago
+  days: [mon, tue, wed, thu, fri]
+  start: "06:00"
+  end: "18:00"
+
+# Noise filters run before any lane. These ADD to the built-in defaults (no-reply, auto-replies,
+# receipts, newsletters...). Set replace: true to use only your own list.
+noise:
+  replace: false
+  senders:
+    - '@cloudhost-billing\.example$'
+    - '@saas-notify\.example$'
+  subjects:
+    - '^\[webinar\]'
+
+# Suppliers you buy from. Domains decide "this is a supplier"; aliases are the names people
+# actually type ("Kestrel" / "Kestrel Pumps"). `parent` is the parent company: it is NEVER used as
+# a link signal on its own, so a different brand under the same parent is not a false match.
+suppliers:
+  - name: Kestrel Pump Works
+    domains: [kestrelpumps.example]
+    aliases: [Kestrel, Kestrel Pumps]
+    parent: Harbor Flow Group
+  - name: Bluefin Valve Co
+    domains: [bluefinvalve.example]
+    aliases: [Bluefin, Blue Fin Valve]
+    parent: Harbor Flow Group
+  - name: Granite & O'Malley Seals
+    domains: [granite-omalley.example]
+    aliases: [Granite and O Malley, G&O Seals]
+    parent: null
+
+# Customers (optional). Anyone external who is not a supplier is treated as a customer anyway;
+# listing them adds aliases for thread linking and account notes.
+customers:
+  - name: Lakeshore Creamery
+    domains: [lakeshorecreamery.example]
+    aliases: [Lakeshore]
+  - name: Prairie Botanicals
+    domains: [prairiebotanicals.example]
+    aliases: [Prairie Bot]
+
+# Lanes are evaluated in ascending priority; the FIRST match owns the email (one owner per email).
+# owner: `self` = whoever runs this profile; or a Hermes profile name (e.g. a specialist agent).
+# detect: which detections this lane runs: new, customer_reply, supplier_reply, replies_owed.
+lanes:
+  - id: quotes
+    label: Quotes & parts requests
+    owner: self
+    priority: 10
+    detect: [new, customer_reply, supplier_reply]
+    match:
+      text:
+        - '\b(quote|quotation|rfq|pricing|price|lead time|availability)\b'
+        - '\b(part|seal|gasket|o-?ring|kit|impeller|diaphragm)s?\b.*\b(need|request|order)\b'
+      exclude_from:
+        - '@kestrelpumps\.example$'    # a supplier sending US a quote is a supplier_reply, not a new RFQ
+        - '@bluefinvalve\.example$'
+
+  - id: accounting
+    label: Accounting
+    owner: self
+    priority: 20
+    detect: [new, customer_reply]
+    match:
+      text:
+        - '\b(invoice|statement|remittance|payment|past due|balance due|credit application|w-?9|ach|refund|credit memo)\b'
+
+  - id: sales
+    label: New business
+    owner: self
+    priority: 30
+    detect: [new, customer_reply, replies_owed]
+    match:
+      text:
+        - '\b(project|proposal|spec|looking for|interested in|recommend|upgrade|samples?|site visit|new line|expansion)\b'
+    replies_owed:
+      after_business_days: 1
+      max_days: 10
+
+# Follow-ups: a sent draft that needs a reply is flagged overdue after this many business days.
+followups:
+  due_business_days: 3
+
+# Safety: supplier pricing is never forwarded outside your company (built-in patterns catch $ amounts,
+# "net price", "price list", quote numbers, discount %). Add your own patterns here.
+safety:
+  pricing_patterns:
+    - '\bmultiplier\s*[:=]?\s*0?\.\d+'
+  pricing_attachment_names:
+    - '(?<![a-z])NPS[-_ ]?\d+'      # e.g. a supplier's net-price-sheet naming ("Kestrel_NPS-2026.xlsx")
+  allow_pricing_to: []              # e.g. an outside rep firm's domain that may see supplier pricing

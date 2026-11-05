@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+# Never commit real company config or mailbox exports
+*.private.yaml
+private/
+.env

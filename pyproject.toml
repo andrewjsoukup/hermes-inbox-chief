@@ -1,0 +1,17 @@
+# Dev/test configuration only. The plugin itself has NO Python dependencies beyond Hermes core,
+# so this file declares none (Hermes treats a pyproject with no dependencies as "no declaration").
+[project]
+name = "hermes-inbox-chief"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8,<9", "pyyaml>=6,<7"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# importlib mode: the plugin root has an __init__.py (Hermes entrypoint), which the default
+# "prepend" mode would try to import as a package parent of the tests.
+addopts = "-q -p no:cacheprovider --import-mode=importlib"
+pythonpath = [".", "tests"]

@@ -1,0 +1,146 @@
+{
+ "_comment": "Fictional seed mailbox for tests and the offline demo. All people, companies and domains are made up (.example). Regenerate with scripts/build_seed_fixture.py.",
+ "me": {
+  "address": "pat@northwind-demo.example",
+  "name": "Pat Rivera"
+ },
+ "now": "2026-11-07T18:00:00Z",
+ "messages": [
+  {
+   "id": "m001",
+   "parentFolder": "inbox",
+   "conversationId": "c-lakeshore-pump",
+   "subject": "Cut sheet for the KP-450 transfer pump?",
+   "from": {
+    "emailAddress": {
+     "address": "dana.okafor@lakeshorecreamery.example",
+     "name": "Dana Okafor"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "ccRecipients": [
+    {
+     "emailAddress": {
+      "address": "lee.marsh@lakeshorecreamery.example",
+      "name": "Lee Marsh"
+     }
+    }
+   ],
+   "receivedDateTime": "2026-11-06T14:05:00Z",
+   "bodyPreview": "Hi Pat, could you send the cut sheet for the Kestrel KP-450 we discussed for line 3?",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Pat,\nCould you send the cut sheet for the Kestrel KP-450 we discussed for line 3? Lee is copied.\nThanks, Dana"
+   }
+  },
+  {
+   "id": "m002",
+   "parentFolder": "sentitems",
+   "conversationId": "c-kestrel-ask",
+   "subject": "KP-450 cut sheet + net pricing",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "ravi.lund@kestrelpumps.example",
+      "name": "Ravi Lund"
+     }
+    }
+   ],
+   "sentDateTime": "2026-11-06T15:10:00Z",
+   "bodyPreview": "Ravi, can you send the KP-450 cut sheet and our net price?",
+   "body": {
+    "contentType": "Text",
+    "content": "Ravi,\nCan you send the KP-450 cut sheet and our net price for qty 2?\nThanks, Pat"
+   }
+  },
+  {
+   "id": "m003",
+   "parentFolder": "inbox",
+   "conversationId": "c-kestrel-ask",
+   "subject": "RE: KP-450 cut sheet + net pricing",
+   "from": {
+    "emailAddress": {
+     "address": "ravi.lund@kestrelpumps.example",
+     "name": "Ravi Lund"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "pat@northwind-demo.example",
+      "name": "Pat Rivera"
+     }
+    }
+   ],
+   "receivedDateTime": "2026-11-07T16:20:00Z",
+   "hasAttachments": true,
+   "bodyPreview": "Pat, cut sheet attached. Your net price is $4,180.00 each, quote Q-77812.",
+   "body": {
+    "contentType": "Text",
+    "content": "Pat,\nCut sheet attached. Your net price is $4,180.00 each, quote Q-77812, 3 weeks ARO.\nRavi"
+   },
+   "attachments": [
+    {
+     "name": "KP-450-cut-sheet.pdf",
+     "contentType": "application/pdf",
+     "size": 120000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRTogZmljdGlvbmFsIEtQLTQ1MCBjdXQgc2hlZXQ="
+    },
+    {
+     "name": "Quote-Q-77812.pdf",
+     "contentType": "application/pdf",
+     "size": 80000,
+     "isInline": false,
+     "contentBytes": "RklYVFVSRTogZmljdGlvbmFsIHF1b3RlIFEtNzc4MTI="
+    },
+    {
+     "name": "image001.png",
+     "contentType": "image/png",
+     "size": 4000,
+     "isInline": true,
+     "contentBytes": "RklYVFVSRTogc2lnbmF0dXJlIGxvZ28="
+    }
+   ]
+  },
+  {
+   "id": "m004",
+   "parentFolder": "drafts",
+   "conversationId": "c-prairie-samples",
+   "isDraft": true,
+   "subject": "Following up on samples",
+   "from": {
+    "emailAddress": {
+     "address": "pat@northwind-demo.example",
+     "name": "Pat Rivera"
+    }
+   },
+   "toRecipients": [
+    {
+     "emailAddress": {
+      "address": "sam.ito@prairiebotanicals.example",
+      "name": "Sam Ito"
+     }
+    }
+   ],
+   "lastModifiedDateTime": "2026-11-05T10:00:00Z",
+   "body": {
+    "contentType": "Text",
+    "content": "Hi Sam, just checking the samples arrived."
+   }
+  }
+ ]
+}

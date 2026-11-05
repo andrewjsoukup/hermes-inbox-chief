@@ -1,0 +1,92 @@
+name: inbox-chief
+version: 0.1.0
+manifest_version: 2
+api_version: 1
+kind: standalone
+label: Inbox Chief
+description: >-
+  Outlook (Microsoft 365) inbox chief of staff: routes each email to one owner lane, catches
+  customer and supplier replies, links a supplier's answer to the customer waiting on it, stages
+  reply-all drafts, and sends only after your explicit go.
+author: Andy Soukup
+license: MIT
+tags: [email, outlook, microsoft-365, productivity, triage]
+requires_hermes: ">=0.22.3"
+
+requires_env:
+  - name: INBOX_CHIEF_MS_CLIENT_ID
+    description: >-
+      Application (client) ID of your own Microsoft Entra ID app registration (public client,
+      redirect http://127.0.0.1, delegated Mail.ReadWrite, Mail.Send, User.Read, offline_access).
+      Not a secret: PKCE sign-in, no client secret.
+    url: https://learn.microsoft.com/entra/identity-platform/quickstart-register-app
+    secret: false
+
+oauth:
+  - id: microsoft
+    authorize_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize
+    token_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/token
+    scopes:
+      - Mail.ReadWrite
+      - Mail.Send
+      - User.Read
+      - offline_access
+    client_id_env: INBOX_CHIEF_MS_CLIENT_ID
+    hosts: [graph.microsoft.com]
+
+provides_tools:
+  - inbox_chief_status
+  - inbox_chief_scan
+  - inbox_chief_thread
+  - inbox_chief_draft_reply
+  - inbox_chief_draft_new
+  - inbox_chief_pending
+  - inbox_chief_send
+  - inbox_chief_resolve
+  - inbox_chief_notes
+provides_hooks:
+  - pre_llm_call
+  - pre_tool_call
+
+config_schema:
+  lanes_file:
+    type: str
+    default: ""
+    label: Lanes file
+    description: Path to your lanes YAML (keep company specifics in a private file outside this plugin). Empty = setup mode.
+  notes_dir:
+    type: str
+    default: ""
+    label: Account notes folder
+    description: Folder of markdown account notes; may be a team-synced folder. Empty = notes off.
+  mailbox:
+    type: str
+    choices: [graph, fixture]
+    default: graph
+    label: Mailbox source
+    description: graph = your Microsoft 365 mailbox; fixture = offline demo mailbox (never touches real mail).
+  fixture_path:
+    type: str
+    default: ""
+    label: Fixture mailbox
+    description: Fixture mailbox JSON for mailbox=fixture. Empty = bundled fictional demo mailbox.
+  send_confirmation:
+    type: str
+    choices: [approval_gate, explicit_go]
+    default: approval_gate
+    label: Send confirmation
+    description: approval_gate = Hermes approval prompt before every send; explicit_go = your latest chat message must be a go for that draft. There is no auto-send.
+  go_phrases:
+    type: list
+    default: []
+    label: Extra go phrases
+    description: Additional phrases that count as a go in explicit_go mode.
+  scan_lookback_days:
+    type: int
+    default: 2
+    label: Scan lookback (days)
+  owner:
+    type: str
+    default: ""
+    label: Lane owner for this profile
+    description: Which lane owner this profile acts as. Empty = the profile name.
