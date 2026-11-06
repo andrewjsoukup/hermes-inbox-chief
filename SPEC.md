@@ -302,27 +302,38 @@ one profile against the test mailbox first.
 ```yaml
 oauth:
   - id: microsoft
-    authorize_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize
-    token_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/token
+    authorize_url: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+    token_url: https://login.microsoftonline.com/common/oauth2/v2.0/token
+    authorize_params: {prompt: select_account}
     scopes: [Mail.ReadWrite, Mail.Send, User.Read, offline_access]
     client_id_env: INBOX_CHIEF_MS_CLIENT_ID
     hosts: [graph.microsoft.com]
 ```
-Each organisation (or user) registers its own Entra ID app: platform "Mobile and desktop
-applications", redirect URI `http://127.0.0.1` (Entra accepts any loopback port), "Allow public client
-flows" on, delegated Graph permissions Mail.ReadWrite, Mail.Send, User.Read, offline_access. Admin
-consent may be required by the tenant.
+The plugin accepts personal Outlook.com/Hotmail/Live accounts and Microsoft 365 work/school
+accounts through `/common`. Register an Entra public-client app with
+`signInAudience: AzureADandPersonalMicrosoftAccount`; the mailbox user need not be a member of
+the directory hosting that registration. There is no bundled publisher app or client secret.
+Keep delegated Mail.ReadWrite, Mail.Send, User.Read and offline_access. Tenant consent policy
+still applies to work accounts. Changing the authority invalidates previously saved Hermes grants.
+
+**Loopback constraint:** current Hermes plugin OAuth binds a random port and sends
+`http://127.0.0.1:<port>/callback`. Microsoft documents the ignored-port exception specifically
+for `localhost`; do not promise the same for an IP literal. Register the exact URI under
+`publicClient.redirectUris` while `hermes auth add ... --no-browser --timeout 900` is waiting.
+A new invocation can need a new redirect URI. Do not override the PKCE state, redirect, or token
+transport in plugin code. See docs/DEMO_MAILBOX_SETUP.md for the operator sequence and sources.
 
 **Open risk (must be proven on the first real sign-in):** Hermes (`hermes_cli/plugin_oauth.py`,
 `_require_granted_scopes`) refuses to save a grant when the token response's `scope` string does not
 contain every declared scope verbatim. Microsoft does not reliably echo `offline_access`, and may
 return Graph scopes either short (`Mail.ReadWrite`) or resource-qualified/lower-cased
-(`https://graph.microsoft.com/mail.readwrite`). Andy's existing Graph token cache shows short names
-and no `offline_access`. If the first sign-in fails with `oauth_scope_not_granted`, the fix is a small
-upstream Hermes PR (normalise case and the resource prefix; treat `offline_access`/`openid`/`profile`
-as not-echoed), not a plugin workaround — the plugin may not hold or refresh tokens itself (catalog
-rule 11). Dropping `offline_access` is not an option: without it Microsoft issues no refresh token
-and every scan would need a new sign-in after an hour.
+(`https://graph.microsoft.com/mail.readwrite`). No live credential files are consulted for this
+plugin's tests or setup. If the first sign-in fails with `oauth_scope_not_granted`, the fix belongs in an
+upstream Hermes PR with provider-specific, fail-closed validation (including refresh-token evidence
+for offline access), not a plugin workaround — the plugin may not hold or refresh tokens itself
+(catalog rule 11). Do not drop offline_access or relax the existing granted-permission check in
+the plugin. Real sign-in, refresh and Graph calls remain unverified until a dedicated test account
+is authorized. This applies to both account types; switching to a paid mailbox is not a fix.
 
 ## 8. Catalog compliance checklist
 - Public surfaces only: `ctx.register_tool/hook/command/cli_command/automation_blueprint/skill`,

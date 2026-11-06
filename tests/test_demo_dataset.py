@@ -256,9 +256,11 @@ def test_loader_guard_blocks_send_move_delete(method, path):
         call(method, L.GRAPH_BASE + path)
 
 
-def test_loader_rewrites_persona_address_to_signed_in_mailbox():
+@pytest.mark.parametrize("domain", ["outlook.com", "hotmail.com", "tenant.example"])
+def test_loader_rewrites_persona_address_to_signed_in_mailbox(domain):
     L = _loader()
-    g = FakeGraph()
+    mailbox = f"demo@{domain}"  # synthetic account; the transport is entirely offline
+    g = FakeGraph(me=mailbox)
     posted = []
 
     def spy(method, url, *, json=None, headers=None):
@@ -266,9 +268,9 @@ def test_loader_rewrites_persona_address_to_signed_in_mailbox():
             posted.append(json)
         return g(method, url, json=json, headers=headers)
 
-    L.load(DATA, spy, expect_mailbox="demo@tenant.example", shift_days=0, log=lambda *_: None)
+    L.load(DATA, spy, expect_mailbox=mailbox, shift_days=0, log=lambda *_: None)
     blob = json.dumps(posted)
-    assert DATA["me"]["address"] not in blob and "demo@tenant.example" in blob
+    assert DATA["me"]["address"] not in blob and mailbox in blob
     assert DATA["me"]["address"] in json.dumps(DATA)  # input not mutated
 
 

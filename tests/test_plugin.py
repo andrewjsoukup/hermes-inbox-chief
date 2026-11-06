@@ -92,6 +92,24 @@ def test_manifest_oauth_and_floor():
     assert graph.OAUTH_ID == o["id"]
 
 
+@pytest.mark.parametrize("endpoint", ["authorize", "token"])
+def test_microsoft_authority_accepts_personal_and_work_accounts(endpoint):
+    (oauth,) = _manifest()["oauth"]
+    assert oauth[f"{endpoint}_url"] == (
+        f"https://login.microsoftonline.com/common/oauth2/v2.0/{endpoint}"
+    )
+    # Broadening the sign-in audience must not broaden mailbox permissions.
+    assert set(oauth["scopes"]) == {"Mail.ReadWrite", "Mail.Send", "User.Read", "offline_access"}
+    assert oauth["hosts"] == ["graph.microsoft.com"]
+    assert "client_secret_env" not in oauth
+
+
+def test_microsoft_sign_in_prompts_for_an_account():
+    (oauth,) = _manifest()["oauth"]
+    # Do not silently reuse a browser's existing work-mail session for the demo.
+    assert oauth.get("authorize_params", {}).get("prompt") == "select_account"
+
+
 def test_unconfigured_status_explains_setup():
     ctx = _registered()
     out = json.loads(ctx.tools["inbox_chief_status"]({}))

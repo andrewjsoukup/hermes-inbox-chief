@@ -2,7 +2,7 @@
 
 ## What it does
 
-**Inbox Chief** turns Hermes into an Outlook (Microsoft 365) inbox chief of staff:
+**Inbox Chief** turns Hermes into an Outlook (personal Outlook.com or Microsoft 365) inbox chief of staff:
 
 - routes each new email to **one owner lane** (you or one of your Hermes specialist profiles), with
   configurable match rules, noise filters and business hours
@@ -17,6 +17,13 @@
 
 Company specifics live in the user's own private lanes YAML outside the plugin. The repo ships only a
 fictional example and a fictional demo mailbox, so the plugin runs offline with `mailbox: fixture`.
+
+Microsoft sign-in uses `/common` and explicitly prompts for account selection. A dedicated Entra
+app supporting organizational and personal accounts is still required; no publisher client ID is
+bundled. The mailbox can be a personal Outlook.com account without an M365 subscription. Live
+sign-in and demo seeding remain pending: the current Hermes scope-echo check and exact loopback
+redirect registration are documented limitations in `docs/DEMO_MAILBOX_SETUP.md`, not verified
+end-to-end compatibility. No production mailbox was used to test this change.
 
 ## Hermes surfaces used
 
@@ -48,7 +55,8 @@ Validation passed.
 
 The one warning is expected: Microsoft's sign-in (`login.microsoftonline.com`) and Graph API
 (`graph.microsoft.com`) are both Microsoft-owned and are the documented endpoints for delegated Graph
-scopes. `hermes plugins doctor --ci`: OK (9 tools, 2 hooks). The test suite has 168 offline tests (2 more need FastAPI and are skipped without it)
+scopes. The prior scaffold check reported `hermes plugins doctor --ci`: OK (9 tools, 2 hooks).
+The current test suite passes all 180 offline tests with FastAPI available (178 pass, 2 skip without it),
 plus a headless jsdom render of the Desktop pane that clicks Go/Change/Skip; a guard fails any test
 that opens a network connection.
 

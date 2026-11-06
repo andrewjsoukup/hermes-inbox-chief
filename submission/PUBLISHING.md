@@ -44,8 +44,12 @@ Comment on the card (or tell Apollo) with your **GitHub username** and the **SHA
    - Body: paste the filled-in `submission/PR_DESCRIPTION.md`, and add the demo video link once it's posted.
 4. Click **Create pull request**, then wait for the catalog CI job to go green.
 
-Deadline: PR and demo by **Tue Nov 11, 5 PM ET**.
+Deadline recorded for this project: PR and demo by **November 11, 2026, 5 PM ET (Wednesday)**.
+The original task said Tuesday; November 11 falls on Wednesday in 2026. Confirm the organizer's
+deadline before submitting.
 
 ## Not required for the PR, but needed for the recorded demo
-- Set up the Microsoft 365 test tenant, Entra app and first sign-in (`docs/DEMO_MAILBOX_SETUP.md`).
+- Create a personal Outlook.com test mailbox (or a dedicated M365 test user), configure a dual-audience
+  Entra app, and complete the first sign-in (`docs/DEMO_MAILBOX_SETUP.md`). No M365 trial is required
+  for a personal test mailbox. The app registration still needs access to an Entra directory.
   The first real sign-in is also the live check of the `offline_access` scope-echo risk (SPEC.md §7).

@@ -1,6 +1,7 @@
 # Inbox Chief — Hermes plugin
 
-An Outlook (Microsoft 365) inbox chief of staff for Hermes. It watches your mailbox the way a good
+An Outlook inbox chief of staff for Hermes, for personal Outlook.com and Microsoft 365 accounts.
+It watches your mailbox the way a good
 assistant would, then hands you finished drafts to approve:
 
 - **One owner per email.** Each new message is routed to exactly one lane (quotes, accounting, sales,
@@ -25,8 +26,10 @@ assistant would, then hands you finished drafts to approve:
 <sub>Screenshots: the real `desktop/plugin.js` rendered against fictional demo data
 (`scripts/render_panel_previews.mjs`). Inside Desktop, the app's own theme replaces the preview styling.</sub>
 
-Requires Hermes **0.22.3 or newer** and a Microsoft 365 **work or school** mailbox. Personal
-outlook.com and hotmail.com accounts are not supported.
+Requires Hermes **0.22.3 or newer**. Microsoft sign-in is configured for **personal Outlook.com /
+Hotmail / Live** mailboxes and **Microsoft 365 work or school** mailboxes. A Microsoft account
+without an Outlook mailbox is not enough. Gmail, other IMAP services and on-premises Exchange
+are not implemented. Offline fixture mode needs no Microsoft account.
 
 ## Install
 
@@ -49,29 +52,42 @@ Then ask Hermes *"scan my inbox"* or type `/inbox`.
 
 ## Microsoft sign-in
 
-Inbox Chief uses **your own** Entra ID app registration. You need one per organisation, and it is
-free. There is no client secret, and Hermes holds the token, not the plugin.
+Inbox Chief uses **your own** Entra app registration, not another vendor's client ID. App
+registration requires access to an Entra directory; the **mailbox user does not have to belong
+to it**. A personal Outlook.com demo mailbox needs no Microsoft 365 subscription. There is no
+client secret, and Hermes holds the token, not the plugin. No shared publisher client ID is bundled.
 
-1. **Register the app** at <https://entra.microsoft.com> → *Identity → Applications → App
-   registrations → New registration*.
-   - Supported account types: *Single tenant*.
-   - Redirect URI: platform **Public client/native (mobile & desktop)**, value
-     **`http://127.0.0.1/callback`**. Hermes listens on a random loopback port, which Entra
-     ignores, but the `/callback` path must match.
-2. Under **Authentication**, set **Allow public client flows** to **Yes**.
-3. Under **API permissions → Microsoft Graph → Delegated**, add `Mail.ReadWrite`, `Mail.Send`,
-   `User.Read` and `offline_access`. Grant admin consent if your tenant requires it.
-4. Give Hermes the **Application (client) ID**, which is not a secret. Use *Desktop → Plugins →
+1. **Register the app** in the Microsoft Entra admin center → *App registrations → New registration*.
+   Choose **Any Entra ID Tenant + Personal Microsoft accounts** (also worded *Accounts in any
+   organizational directory and personal Microsoft accounts*). Its `signInAudience` is
+   `AzureADandPersonalMicrosoftAccount`. An organizational-only or single-tenant registration
+   will not enable the personal-account path just because the plugin uses `/common`.
+2. Under **API permissions → Microsoft Graph → Delegated**, add `Mail.ReadWrite`, `Mail.Send`,
+   `User.Read` and `offline_access`. No application permissions or client secret. Work tenants can
+   require administrator approval; personal users consent for their own mailbox.
+3. Give Hermes the **Application (client) ID**, which is not a secret. Use *Desktop → Plugins →
    Inbox Chief*, or run `hermes config set INBOX_CHIEF_MS_CLIENT_ID <client-id>`.
-5. Sign in **from a terminal**. Hermes never starts a browser sign-in from the gateway or cron.
+4. Configure the **Mobile and desktop / public-client redirect** using the exact callback URI
+   Hermes prints, including port and `/callback`. The current Hermes plugin flow chooses a random
+   `127.0.0.1` port; do not assume Microsoft's documented `localhost` port exception applies to it.
+   The setup guide below explains how to register the URI while the sign-in waits.
+5. Sign in **from your own terminal**, using a private browser window and the intended account:
    ```bash
-   hermes auth add inbox-chief:microsoft
+   hermes auth add inbox-chief:microsoft --no-browser --timeout 900
    hermes auth status inbox-chief:microsoft
    ```
+   `prompt=select_account` asks you to choose; it is not a test-mailbox identity guarantee.
 
-`hermes auth logout inbox-chief:microsoft` removes the grant. If sign-in fails with
-`oauth_scope_not_granted`, Microsoft did not echo one of the requested scopes (usually
-`offline_access`). Please open an issue with the exact message.
+For the exact app/redirect steps and an isolated demo home, see
+[`docs/DEMO_MAILBOX_SETUP.md`](docs/DEMO_MAILBOX_SETUP.md). That guide also covers a personal-account
+setup without purchasing a test tenant. Existing grants made under `/organizations` need a fresh
+sign-in because the declaration changed. `hermes auth logout inbox-chief:microsoft` removes a grant.
+
+**Live compatibility is not yet verified.** Offline tests cover the dual-audience manifest, client
+contract and no-send safety; they cannot prove a real Microsoft login. A known Hermes scope-echo
+check can reject `offline_access` or differently formatted Graph scopes with
+`oauth_scope_not_granted`. Report the sanitized error, not tokens or authorization URLs. That
+requires an upstream Hermes fix, not a plugin token-storage workaround. See SPEC.md §7.
 
 **Teams.** Each person installs the plugin and signs in with their own Microsoft account. Grants and
 runtime state are per user and per Hermes profile. The lanes file and the account-notes folder can
@@ -105,7 +121,7 @@ hermes config set plugins.entries.inbox-chief.settings.lanes_file ~/inbox-chief/
 |---|---|---|
 | `lanes_file` | `""` | Path to your lanes YAML. Empty means setup mode. |
 | `notes_dir` | `""` | Folder of markdown account notes. Empty turns notes off. |
-| `mailbox` | `graph` | `graph` = your Microsoft 365 mailbox; `fixture` = offline demo mailbox |
+| `mailbox` | `graph` | `graph` = your personal Outlook.com or Microsoft 365 mailbox; `fixture` = offline demo mailbox |
 | `fixture_path` | `""` | Custom fixture mailbox JSON for `mailbox: fixture` |
 | `send_confirmation` | `approval_gate` | `approval_gate` = Hermes approval prompt before every send; `explicit_go` = your latest chat message must be a go for that draft |
 | `go_phrases` | `[]` | Extra phrases that count as a go in `explicit_go` mode |
@@ -182,7 +198,8 @@ What you should know before installing (catalog rule 13):
   used for development and tests.
 - **Dev-only scripts (never loaded by Hermes):** `scripts/load_demo_mailbox.py` seeds an *empty test
   mailbox* with the fictional demo dataset. It refuses to run if the signed-in mailbox isn't the one
-  you name, or if that mailbox already has mail. `scripts/render_panel_previews.mjs` makes the README
+  you name, if its Inbox has more than 25 messages, or if demo data is already present (unless the
+  operator explicitly overrides the latter two checks). `scripts/render_panel_previews.mjs` makes the README
   screenshots; its HTML loads Tailwind from `cdn.jsdelivr.net` when opened.
 
 ## Development
@@ -195,7 +212,8 @@ hermes plugins doctor . --ci
 ```
 
 Tests run offline only; a guard fails any test that opens a network connection. The recorded demo
-uses a separate Microsoft 365 test tenant: see [`docs/DEMO_MAILBOX_SETUP.md`](docs/DEMO_MAILBOX_SETUP.md).
+uses a separate personal Outlook.com or Microsoft 365 test mailbox, never your real mail:
+see [`docs/DEMO_MAILBOX_SETUP.md`](docs/DEMO_MAILBOX_SETUP.md).
 Design and catalog-compliance notes are in [`SPEC.md`](SPEC.md).
 
 License: MIT

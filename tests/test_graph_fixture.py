@@ -58,17 +58,21 @@ class _Resp:
         return json.loads(self.body)
 
 
-def test_hermes_client_uses_declared_oauth_id_and_graph_host():
+@pytest.mark.parametrize("domain", ["outlook.com", "hotmail.com", "northwind-demo.example"])
+@pytest.mark.parametrize("identity_field", ["mail", "userPrincipalName"])
+def test_hermes_client_uses_declared_oauth_id_and_graph_host(domain, identity_field):
+    # Synthetic identities only: no_network blocks all live mailbox access.
+    import json as json_module
     calls = []
 
     def fake(provider, method, url, *, json=None, headers=None, timeout=30):
         calls.append((provider, method, url))
         if "/messages/gone" in url:
             return _Resp(404, b'{"error":{"code":"ErrorItemNotFound"}}')
-        return _Resp(200, b'{"mail":"Pat@Northwind-Demo.example","displayName":"Pat"}')
+        return _Resp(200, json_module.dumps({identity_field: f"Demo@{domain}", "displayName": "Demo"}).encode())
 
     c = HermesGraphClient(request=fake)
-    assert c.me()["address"] == "pat@northwind-demo.example"
+    assert c.me()["address"] == f"demo@{domain}"
     assert c.get_message("gone") is None
     assert all(p == "microsoft" and u.startswith("https://graph.microsoft.com/v1.0/") for p, _, u in calls)
 

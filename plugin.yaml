@@ -5,7 +5,7 @@ api_version: 1
 kind: standalone
 label: Inbox Chief
 description: >-
-  Outlook (Microsoft 365) inbox chief of staff: routes each email to one owner lane, catches
+  Outlook (personal Outlook.com or Microsoft 365) inbox chief of staff: routes each email to one owner lane, catches
   customer and supplier replies, links a supplier's answer to the customer waiting on it, stages
   reply-all drafts, and sends only after your explicit go.
 author: Andy Soukup
@@ -16,16 +16,18 @@ requires_hermes: ">=0.22.3"
 requires_env:
   - name: INBOX_CHIEF_MS_CLIENT_ID
     description: >-
-      Application (client) ID of your own Microsoft Entra ID app registration (public client,
-      redirect http://127.0.0.1, delegated Mail.ReadWrite, Mail.Send, User.Read, offline_access).
+      Application (client) ID of your own Microsoft Entra app registration supporting organizational
+      and personal Microsoft accounts (public PKCE client; see README for the loopback redirect).
+      Delegated Mail.ReadWrite, Mail.Send, User.Read, offline_access.
       Not a secret: PKCE sign-in, no client secret.
     url: https://learn.microsoft.com/entra/identity-platform/quickstart-register-app
     secret: false
 
 oauth:
   - id: microsoft
-    authorize_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize
-    token_url: https://login.microsoftonline.com/organizations/oauth2/v2.0/token
+    authorize_url: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+    token_url: https://login.microsoftonline.com/common/oauth2/v2.0/token
+    authorize_params: {prompt: select_account}
     scopes:
       - Mail.ReadWrite
       - Mail.Send
@@ -64,7 +66,7 @@ config_schema:
     choices: [graph, fixture]
     default: graph
     label: Mailbox source
-    description: graph = your Microsoft 365 mailbox; fixture = offline demo mailbox (never touches real mail).
+    description: graph = your personal Outlook.com or Microsoft 365 mailbox; fixture = offline demo mailbox (never touches real mail).
   fixture_path:
     type: str
     default: ""
