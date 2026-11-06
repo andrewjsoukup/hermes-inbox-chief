@@ -86,8 +86,11 @@ commands pin both the sandbox interpreter and its source workspace; an inherited
 otherwise import the live installation even from a sandbox Python. Hermes owns credential storage through its public config/auth commands and the
 plugin's `oauth:` declaration; do not edit or read token files.
 
-The sandbox is not shipped in a fresh clone. On another machine, prepare an isolated Hermes home
-and use `hermes plugins install <repo-path> --enable --yes-deps` there before following these steps.
+The sandbox is not shipped in a fresh clone. On another machine, prepare an isolated Hermes home.
+For a local developer checkout, clone this repository into `<isolated-home>/plugins/inbox-chief`
+with Git, then run `hermes plugins enable inbox-chief` under that home. For a published release,
+use the catalog or its Git URL. Do not pass a Windows filesystem path to `hermes plugins install`:
+the current CLI interprets it as a GitHub repository shorthand, not a local directory.
 
 ## 4. Start sign-in, register its exact redirect, then authorize
 

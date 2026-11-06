@@ -55,7 +55,7 @@ Validation passed.
 
 The one warning is expected: Microsoft's sign-in (`login.microsoftonline.com`) and Graph API
 (`graph.microsoft.com`) are both Microsoft-owned and are the documented endpoints for delegated Graph
-scopes. The prior scaffold check reported `hermes plugins doctor --ci`: OK (9 tools, 2 hooks).
+scopes. A fresh-clone `hermes plugins doctor --ci` also passes (9 tools, 2 hooks).
 The current test suite passes all 180 offline tests with FastAPI available (178 pass, 2 skip without it),
 plus a headless jsdom render of the Desktop pane that clicks Go/Change/Skip; a guard fails any test
 that opens a network connection.
