@@ -39,7 +39,12 @@ There is no core patching and no undocumented core imports. `register()` does no
 
 ## Validation
 
-`hermes plugins validate <checkout> --install-deps` at the pinned commit, on Hermes v0.22.7:
+Public repository: https://github.com/andrewjsoukup/hermes-inbox-chief
+
+Pinned commit: `44160006ddcb29e3e71747cda2e760ceb01a0906`.
+
+An anonymous fresh clone was checked out at that exact commit, then
+`hermes plugins validate <checkout> --install-deps` passed on Hermes v0.22.7:
 
 ```
 ✓ manifest / manifest fields / requires_hermes '>=0.22.3' / config schema / requires_env / oauth
@@ -55,7 +60,8 @@ Validation passed.
 
 The one warning is expected: Microsoft's sign-in (`login.microsoftonline.com`) and Graph API
 (`graph.microsoft.com`) are both Microsoft-owned and are the documented endpoints for delegated Graph
-scopes. A fresh-clone `hermes plugins doctor --ci` also passes (9 tools, 2 hooks).
+scopes. The validator completed with exit code 0 despite a separate pre-existing local-launcher
+source-update warning; no Hermes update or service restart was performed for publication.
 The current test suite passes all 180 offline tests with FastAPI available (178 pass, 2 skip without it),
 plus a headless jsdom render of the Desktop pane that clicks Go/Change/Skip; a guard fails any test
 that opens a network connection.
@@ -94,8 +100,10 @@ that opens a network connection.
 
 | Lane queue | Approve (Go) | Draft preview | Account note |
 |---|---|---|---|
-| ![](https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-queue.png) | ![](https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-confirm.png) | ![](https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-preview.png) | ![](https://raw.githubusercontent.com/<GITHUB_USER>/hermes-inbox-chief/<sha>/docs/screenshots/panel-notes.png) |
+| ![](https://raw.githubusercontent.com/andrewjsoukup/hermes-inbox-chief/44160006ddcb29e3e71747cda2e760ceb01a0906/docs/screenshots/panel-queue.png) | ![](https://raw.githubusercontent.com/andrewjsoukup/hermes-inbox-chief/44160006ddcb29e3e71747cda2e760ceb01a0906/docs/screenshots/panel-confirm.png) | ![](https://raw.githubusercontent.com/andrewjsoukup/hermes-inbox-chief/44160006ddcb29e3e71747cda2e760ceb01a0906/docs/screenshots/panel-preview.png) | ![](https://raw.githubusercontent.com/andrewjsoukup/hermes-inbox-chief/44160006ddcb29e3e71747cda2e760ceb01a0906/docs/screenshots/panel-notes.png) |
 
-Demo video: <link to X post>
+All four pinned image URLs returned HTTP 200 with PNG content matching the committed files.
+
+Demo video: recording/upload pending; the owner will add the X post link before final submission.
 
 I am the repository owner (rule 5).

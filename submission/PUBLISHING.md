@@ -1,7 +1,27 @@
 # Publishing Inbox Chief to the Hermes plugin catalog
 
-These are the steps only Andy can do. A9 has no `gh` CLI, so everything below uses the GitHub
-website plus plain `git`. Allow about 15 minutes.
+## Current handoff — source publication complete
+
+Public repository: https://github.com/andrewjsoukup/hermes-inbox-chief
+
+Catalog release pin: `44160006ddcb29e3e71747cda2e760ceb01a0906`.
+Later commits may update only this submission package; keep the validated release pin above.
+
+Verified against a fresh anonymous public clone at that exact commit:
+- `hermes plugins validate <checkout> --install-deps` passed on Hermes v0.22.7.
+- All **180 offline tests passed**, with no skips; Desktop harness returned `RENDER OK`.
+- All **four SHA-pinned screenshot URLs returned HTTP 200**, with PNG bytes matching the repository.
+- Unpublished history was checked and sanitized before the first push; private files are not tracked.
+
+The finalized catalog file is `submission/plugin-catalog/inbox-chief.yaml`; the finalized PR body is
+`submission/PR_DESCRIPTION.md`. **No catalog PR has been opened by this publishing task.**
+Andy: skip to **step 4** below to open the PR and add the demo-video link when posted.
+Live Microsoft sign-in and demo seeding remain unverified and are disclosed in both files.
+
+## Original publication steps (0–3 are already complete)
+
+The browser plus plain `git` workflow below is retained for reference. Do not create the repository
+again or rewrite the now-public commit history. The original commit author identities were preserved.
 
 ## 0. Before you push (one-time decision)
 Commits in this repo are authored with your personal Gmail address, and a public repo shows
